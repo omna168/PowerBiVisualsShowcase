@@ -592,3 +592,86 @@ body::-webkit-scrollbar-thumb {
     font-size: 12px;
 }
 
+
+/* Stepper */
+.stepper-container {
+    background: white;
+    padding: 20px 0;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 20px;
+}
+
+.stepper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.step-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f3f2f1;
+    color: #605e5c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+    margin-right: 8px;
+    border: 2px solid #f3f2f1;
+    transition: all 0.3s ease;
+}
+
+.step.active .step-circle {
+    background: #0078d4;
+    color: white;
+    border-color: #0078d4;
+}
+
+.step.completed .step-circle {
+    background: #107c10;
+    color: white;
+    border-color: #107c10;
+}
+
+.step-label {
+    font-size: 14px;
+    color: #605e5c;
+    font-weight: 500;
+}
+
+.step.active .step-label {
+    color: #201f1e;
+    font-weight: 700;
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: #e0e0e0;
+    margin: 0 16px;
+}
+
+.step-line.active {
+    background: #0078d4;
+}
+
+/* Fade In Animation */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+

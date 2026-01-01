@@ -81,12 +81,15 @@ function App() {
   };
 
   const handleReportLoad = (event) => {
-    const report = event.detail.getReport();
-    setReport(report);
-    setMessage('Report loaded. Click "Create Visual" to add a custom visual.');
+    if (window.report) {
+      setReport(window.report);
+      setMessage('Report loaded. Click "Create Visual" to add a custom visual.');
+    } else {
+      console.log("Report loaded but window.report is not set yet.");
+    }
   };
 
-  const handleCreateVisual = async (visualType, selectedFields) => {
+  const handleCreateVisual = async (visualType, selectedFields, formatting) => {
     if (!report) return;
 
     try {
@@ -122,12 +125,16 @@ function App() {
         }
       }
 
+      // Apply formatting if available (for real Power BI visuals, this would involve setting properties)
+      // For now, we just log it or use it for mock mode
+      
       if (isMockMode) {
           setMockVisuals(prev => [...prev, {
               id: Date.now(),
               type: visualType,
-              title: `New ${visualType}`,
+              title: formatting?.customTitle || `New ${visualType}`,
               fields: selectedFields,
+              formatting: formatting || {}, // Store formatting options
               style: { 
                   ...layout,
                   x: layout.x + (prev.length * 20), // Offset for visibility
@@ -149,14 +156,15 @@ function App() {
         <div className="container-fluid">
           <span className="navbar-brand mb-0 h1">Power BI Visual Creator</span>
           <div className="d-flex align-items-center">
-            {message && <span className="text-light me-3 small d-none d-md-inline-block">{message}</span>}
-            <button 
-              className="btn btn-primary btn-sm fw-bold" 
-              onClick={() => setShowModal(true)}
-              disabled={!report}
-            >
-              + Create Visual
-            </button>
+            {embedConfig && (
+                <button 
+                  className="btn btn-primary btn-sm fw-bold" 
+                  onClick={() => setShowModal(true)}
+                  disabled={!report && !isMockMode}
+                >
+                  + Create Visual
+                </button>
+            )}
           </div>
         </div>
       </nav>
@@ -209,9 +217,15 @@ function App() {
                                 onClick={() => setExpandedVisual(visual)}
                                 style={{cursor: 'pointer'}}
                             >
-                                <div className="visual-header">
-                                    <span>{visual.title}</span>
-                                    <span className="badge bg-light text-dark border">{visual.type}</span>
+                                <div className="visual-header" style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                                    <div style={{
+                                        flex: 1, 
+                                        textAlign: visual.formatting?.titleAlignment || 'left',
+                                        display: visual.formatting?.title === false ? 'none' : 'block'
+                                    }}>
+                                        <span style={{fontWeight: '600'}}>{visual.formatting?.customTitle || visual.title}</span>
+                                    </div>
+                                    <span className="badge bg-light text-dark border" style={{marginLeft: '8px'}}>{visual.type}</span>
                                 </div>
                                 <div className="visual-content" style={{padding: '10px'}}>
                                     <VisualRenderer visual={visual} />
@@ -271,7 +285,11 @@ function App() {
                         <span className="back-arrow">‹</span>
                         <span className="back-text">Back to report</span>
                         <div className="header-separator"></div>
-                        <span className="header-title">{expandedVisual.title.toUpperCase()}</span>
+                        {expandedVisual.formatting?.title !== false && (
+                            <span className="header-title">
+                                {(expandedVisual.formatting?.customTitle || expandedVisual.title).toUpperCase()}
+                            </span>
+                        )}
                         {expandedVisual.title === "Number of Opportunities by Salesperson" && <span className="header-subtitle">BY SALESPERSON</span>}
                     </div>
                     <div className="header-right">

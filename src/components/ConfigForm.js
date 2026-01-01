@@ -6,6 +6,7 @@ const ConfigForm = ({ onConfigSubmit, onMockMode }) => {
         accessToken: '',
         reportId: ''
     });
+    const [showManual, setShowManual] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -20,62 +21,98 @@ const ConfigForm = ({ onConfigSubmit, onMockMode }) => {
         onConfigSubmit(config);
     };
 
+    const handleSampleLoad = async () => {
+        try {
+            const response = await fetch("/playground/report/45ce895e-0693-46c7-b984-c849948414e1/GenerateToken");
+            if (!response.ok) throw new Error("Network response was not ok");
+            const data = await response.json();
+            onConfigSubmit({
+                embedUrl: data.embedUrl,
+                reportId: "45ce895e-0693-46c7-b984-c849948414e1",
+                accessToken: data.token,
+                tokenType: 1 // Embed Token
+            });
+        } catch (e) {
+            console.error(e);
+            alert("Could not load live sample. Switching to Mock Mode for demonstration.");
+            onMockMode();
+        }
+    };
+
     return (
-        <div className="container mt-5">
-            <div className="card shadow-sm">
-                <div className="card-header bg-primary text-white">
-                    <h5 className="mb-0">Power BI Embed Configuration</h5>
-                </div>
-                <div className="card-body">
+        <div className="container mt-5" style={{ maxWidth: '600px' }}>
+            
+            {/* Header */}
+            <div className="text-center mb-5">
+                <h2 className="fw-bold text-dark">Welcome to Visual Creator</h2>
+                <p className="text-muted">Create custom Power BI visuals in seconds.</p>
+            </div>
+
+            {/* Quick Start Card */}
+            <div className="card shadow-lg border-0 mb-4" style={{ borderRadius: '12px' }}>
+                <div className="card-body p-5 text-center">
                     <div className="mb-4">
-                        <h6 className="fw-bold text-muted text-uppercase small">Quick Start</h6>
-                        <div className="d-grid gap-2">
-                            <button type="button" className="btn btn-success btn-lg" onClick={async () => {
-                                try {
-                                    const response = await fetch("/playground/report/45ce895e-0693-46c7-b984-c849948414e1/GenerateToken");
-                                    const data = await response.json();
-                                    onConfigSubmit({
-                                        embedUrl: data.embedUrl,
-                                        reportId: "45ce895e-0693-46c7-b984-c849948414e1",
-                                        accessToken: data.token,
-                                        tokenType: 1 // Embed Token
-                                    });
-                                } catch (e) {
-                                    alert("Failed to load sample. Please check console.");
-                                    console.error(e);
-                                }
-                            }}>
-                                <i className="bi bi-play-fill me-2"></i>Load Microsoft Sample Report
-                            </button>
-                            <button type="button" className="btn btn-outline-secondary" onClick={onMockMode}>
-                                Use Mock Mode (Test UI Only)
-                            </button>
-                        </div>
+                        <span style={{ fontSize: '3rem' }}>🚀</span>
                     </div>
-
-                    <hr className="my-4" />
-
-                    <h6 className="fw-bold text-muted text-uppercase small mb-3">Manual Configuration</h6>
-                    <p className="text-muted small mb-3">
-                        If you have your own report, enter the details below. You can get a token from the <a href="https://playground.powerbi.com/en-us/dev-sandbox" target="_blank" rel="noreferrer">Power BI Playground</a>.
-                    </p>
+                    <h3 className="fw-bold mb-3">Get Started</h3>
+                    <p className="text-muted mb-4">Load a Microsoft sample report and start creating visuals instantly.</p>
                     
-                    <form onSubmit={handleSubmit}>
-                        <div className="mb-3">
-                            <label className="form-label">Embed URL</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                name="embedUrl"
-                                value={config.embedUrl}
-                                onChange={handleChange}
-                                required
-                                placeholder="https://app.powerbi.com/reportEmbed?..."
-                            />
-                        </div>
-                        <div className="row">
-                            <div className="col-md-4 mb-3">
-                                <label className="form-label">Report ID</label>
+                    <button 
+                        type="button" 
+                        className="btn btn-primary btn-lg w-100 py-3 fw-bold shadow-sm mb-3" 
+                        onClick={handleSampleLoad}
+                        style={{ borderRadius: '8px' }}
+                    >
+                        Load Sample Report
+                    </button>
+
+                    <button 
+                        type="button" 
+                        className="btn btn-outline-secondary w-100 py-2" 
+                        onClick={onMockMode}
+                        style={{ borderRadius: '8px', border: 'none', background: '#f8f9fa' }}
+                    >
+                        Try Mock Mode (No API required)
+                    </button>
+                </div>
+            </div>
+
+            {/* Manual Config Toggle */}
+            <div className="text-center mb-4">
+                <button 
+                    className="btn btn-link text-muted text-decoration-none"
+                    onClick={() => setShowManual(!showManual)}
+                    style={{ fontSize: '0.9rem' }}
+                >
+                    {showManual ? 'Hide Advanced Configuration' : 'Advanced / Custom Report'} 
+                    <i className={`bi bi-chevron-${showManual ? 'up' : 'down'} ms-1`}></i>
+                </button>
+            </div>
+
+            {/* Manual Config Form (Collapsible) */}
+            {showManual && (
+                <div className="card shadow-sm border-0 bg-light fade-in" style={{ borderRadius: '12px' }}>
+                    <div className="card-body p-4">
+                        <h6 className="fw-bold text-muted text-uppercase small mb-3">Manual Configuration</h6>
+                        <p className="text-muted small mb-3">
+                            Enter details from the <a href="https://playground.powerbi.com/en-us/dev-sandbox" target="_blank" rel="noreferrer">Power BI Playground</a>.
+                        </p>
+                        
+                        <form onSubmit={handleSubmit}>
+                            <div className="mb-3">
+                                <label className="form-label small fw-bold text-secondary">Embed URL</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    name="embedUrl"
+                                    value={config.embedUrl}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="https://app.powerbi.com/reportEmbed?..."
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label small fw-bold text-secondary">Report ID</label>
                                 <input
                                     type="text"
                                     className="form-control"
@@ -85,8 +122,8 @@ const ConfigForm = ({ onConfigSubmit, onMockMode }) => {
                                     required
                                 />
                             </div>
-                            <div className="col-md-8 mb-3">
-                                <label className="form-label">Access Token</label>
+                            <div className="mb-3">
+                                <label className="form-label small fw-bold text-secondary">Access Token</label>
                                 <input
                                     type="text"
                                     className="form-control"
@@ -95,14 +132,18 @@ const ConfigForm = ({ onConfigSubmit, onMockMode }) => {
                                     onChange={handleChange}
                                     required
                                 />
+                                <div className="form-text text-warning">
+                                    <i className="bi bi-exclamation-triangle me-1"></i>
+                                    Token must have <strong>Edit permissions</strong> to create visuals.
+                                </div>
                             </div>
-                        </div>
-                        <div className="d-flex justify-content-end">
-                            <button type="submit" className="btn btn-primary">Load Custom Report</button>
-                        </div>
-                    </form>
+                            <div className="d-grid">
+                                <button type="submit" className="btn btn-dark">Load Custom Report</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };

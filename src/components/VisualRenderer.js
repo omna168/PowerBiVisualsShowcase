@@ -255,8 +255,23 @@ const VisualRenderer = ({ visual, isLarge }) => {
             )}
 
             {/* Generic Renderer for Newly Created Visuals */}
-            {visual.title && visual.title.startsWith("New ") && (
-                <div className="chart-container" style={{justifyContent: 'center', alignItems: 'center', display: 'flex', height: '100%', width: '100%'}}>
+            {(visual.title && (visual.title.startsWith("New ") || visual.formatting)) && (
+                <div className="chart-container" style={{justifyContent: 'center', alignItems: 'center', display: 'flex', height: '100%', width: '100%', flexDirection: 'column'}}>
+                    
+                    {/* Legend (Top) */}
+                    {visual.formatting?.legend && (
+                        <div className="d-flex justify-content-center w-100 mb-2" style={{fontSize: '10px', color: '#666'}}>
+                            <div className="d-flex align-items-center me-3">
+                                <div style={{width: '8px', height: '8px', backgroundColor: '#0078D4', borderRadius: '50%', marginRight: '4px'}}></div>
+                                <span>Series 1</span>
+                            </div>
+                            <div className="d-flex align-items-center">
+                                <div style={{width: '8px', height: '8px', backgroundColor: '#102576', borderRadius: '50%', marginRight: '4px'}}></div>
+                                <span>Series 2</span>
+                            </div>
+                        </div>
+                    )}
+
                     {(visual.type === "Column Chart" || visual.type === "columnChart") && (
                         <div className="chart-container">
                             <div className="d-flex flex-row h-100">
@@ -264,46 +279,77 @@ const VisualRenderer = ({ visual, isLarge }) => {
                                 <div className="plot-area">
                                     {[60, 80, 45, 90, 30].map((h, i) => (
                                         <div key={i} className="column-bar-group" style={{width: '15%'}}>
+                                            {visual.formatting?.value && <span className="data-label" style={{marginBottom: '2px'}}>{h}</span>}
                                             <div className="column-bar" style={{height: `${h}%`, backgroundColor: '#0078D4'}}></div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                            <div className="x-axis"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span></div>
+                            {visual.formatting?.category !== false && (
+                                <div className="x-axis"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span></div>
+                            )}
                         </div>
                     )}
                     {(visual.type === "Bar Chart" || visual.type === "barChart") && (
                         <div className="bar-chart-container">
                             <div className="d-flex flex-row w-100 h-100">
-                                <div className="bar-y-axis"><span>Cat A</span><span>Cat B</span><span>Cat C</span></div>
+                                {visual.formatting?.category !== false && (
+                                    <div className="bar-y-axis"><span>Cat A</span><span>Cat B</span><span>Cat C</span></div>
+                                )}
                                 <div className="bar-plot-area">
-                                    <div className="bar-horizontal" style={{width: '70%', backgroundColor: '#0078D4', marginBottom: '10px'}}>70</div>
-                                    <div className="bar-horizontal" style={{width: '40%', backgroundColor: '#0078D4', marginBottom: '10px'}}>40</div>
-                                    <div className="bar-horizontal" style={{width: '90%', backgroundColor: '#0078D4'}}>90</div>
+                                    {[
+                                        {w: 70, c: '#0078D4'}, 
+                                        {w: 40, c: '#0078D4'}, 
+                                        {w: 90, c: '#0078D4'}
+                                    ].map((d, i) => (
+                                        <div key={i} className="d-flex align-items-center" style={{width: '100%', marginBottom: '10px'}}>
+                                            <div className="bar-horizontal" style={{width: `${d.w}%`, backgroundColor: d.c, justifyContent: 'center'}}>
+                                                {visual.formatting?.value && <span style={{color: 'white', fontSize: '9px'}}>{d.w}</span>}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
                     )}
                     {(visual.type === "Pie Chart" || visual.type === "pieChart") && (
-                        <div className="pie-container">
+                        <div className="pie-container" style={{flexDirection: 'column'}}>
                             <div className="pie-placeholder" style={{
                                 width: '120px', height: '120px',
-                                background: `conic-gradient(#0078D4 0% 33%, #102576 33% 66%, #E06C36 66% 100%)`
-                            }}></div>
+                                background: `conic-gradient(#0078D4 0% 33%, #102576 33% 66%, #E06C36 66% 100%)`,
+                                position: 'relative'
+                            }}>
+                                {visual.formatting?.value && (
+                                    <>
+                                        <span style={{position: 'absolute', top: '20%', right: '20%', color: 'white', fontSize: '10px'}}>33%</span>
+                                        <span style={{position: 'absolute', bottom: '10%', left: '40%', color: 'white', fontSize: '10px'}}>34%</span>
+                                        <span style={{position: 'absolute', top: '20%', left: '20%', color: 'white', fontSize: '10px'}}>33%</span>
+                                    </>
+                                )}
+                            </div>
                         </div>
                     )}
                     {(visual.type === "Line Chart" || visual.type === "lineChart") && (
                         <div className="chart-container">
                             <div className="plot-area" style={{alignItems: 'stretch'}}>
-                                <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" style={{overflow: 'visible'}}>
                                     <path d="M0 80 L25 40 L50 60 L75 20 L100 50" fill="none" stroke="#0078D4" strokeWidth="2" />
-                                    <circle cx="0" cy="80" r="2" fill="#0078D4" />
-                                    <circle cx="25" cy="40" r="2" fill="#0078D4" />
-                                    <circle cx="50" cy="60" r="2" fill="#0078D4" />
-                                    <circle cx="75" cy="20" r="2" fill="#0078D4" />
-                                    <circle cx="100" cy="50" r="2" fill="#0078D4" />
+                                    {[
+                                        {x: 0, y: 80, v: 20}, {x: 25, y: 40, v: 60}, {x: 50, y: 60, v: 40}, 
+                                        {x: 75, y: 20, v: 80}, {x: 100, y: 50, v: 50}
+                                    ].map((p, i) => (
+                                        <g key={i}>
+                                            <circle cx={p.x} cy={p.y} r="2" fill="#0078D4" />
+                                            {visual.formatting?.value && (
+                                                <text x={p.x} y={p.y - 5} textAnchor="middle" fontSize="8" fill="#333">{p.v}</text>
+                                            )}
+                                        </g>
+                                    ))}
                                 </svg>
                             </div>
+                            {visual.formatting?.category !== false && (
+                                <div className="x-axis"><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span></div>
+                            )}
                         </div>
                     )}
                     {(visual.type === "Area Chart" || visual.type === "areaChart") && (
@@ -325,17 +371,24 @@ const VisualRenderer = ({ visual, isLarge }) => {
                                         
                                         {/* Data Points */}
                                         {[
-                                            {x: 0, y: 120}, {x: 80, y: 80}, {x: 160, y: 140}, 
-                                            {x: 240, y: 60}, {x: 320, y: 100}, {x: 400, y: 40}
+                                            {x: 0, y: 120, v: 40}, {x: 80, y: 80, v: 60}, {x: 160, y: 140, v: 30}, 
+                                            {x: 240, y: 60, v: 70}, {x: 320, y: 100, v: 50}, {x: 400, y: 40, v: 80}
                                         ].map((p, i) => (
-                                            <circle key={i} cx={p.x} cy={p.y} r="4" fill="#0078D4" stroke="white" strokeWidth="2" />
+                                            <g key={i}>
+                                                <circle cx={p.x} cy={p.y} r="4" fill="#0078D4" stroke="white" strokeWidth="2" />
+                                                {visual.formatting?.value && (
+                                                    <text x={p.x} y={p.y - 10} textAnchor="middle" fontSize="10" fill="#333">{p.v}</text>
+                                                )}
+                                            </g>
                                         ))}
                                     </svg>
                                 </div>
                             </div>
-                            <div className="x-axis" style={{marginTop: '10px'}}>
-                                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
-                            </div>
+                            {visual.formatting?.category !== false && (
+                                <div className="x-axis" style={{marginTop: '10px'}}>
+                                    <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+                                </div>
+                            )}
                         </div>
                     )}
                     {!["Column Chart", "Bar Chart", "Pie Chart", "Line Chart", "Area Chart", "columnChart", "barChart", "pieChart", "lineChart", "areaChart"].includes(visual.type) && (
