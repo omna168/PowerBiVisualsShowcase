@@ -257,7 +257,7 @@ const VisualRenderer = ({ visual, isLarge }) => {
             {/* Generic Renderer for Newly Created Visuals */}
             {visual.title && visual.title.startsWith("New ") && (
                 <div className="chart-container" style={{justifyContent: 'center', alignItems: 'center', display: 'flex', height: '100%', width: '100%'}}>
-                    {visual.type === "Column Chart" && (
+                    {(visual.type === "Column Chart" || visual.type === "columnChart") && (
                         <div className="chart-container">
                             <div className="d-flex flex-row h-100">
                                 <div className="y-axis"><span>100</span><span>50</span><span>0</span></div>
@@ -272,7 +272,7 @@ const VisualRenderer = ({ visual, isLarge }) => {
                             <div className="x-axis"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span></div>
                         </div>
                     )}
-                    {visual.type === "Bar Chart" && (
+                    {(visual.type === "Bar Chart" || visual.type === "barChart") && (
                         <div className="bar-chart-container">
                             <div className="d-flex flex-row w-100 h-100">
                                 <div className="bar-y-axis"><span>Cat A</span><span>Cat B</span><span>Cat C</span></div>
@@ -284,7 +284,7 @@ const VisualRenderer = ({ visual, isLarge }) => {
                             </div>
                         </div>
                     )}
-                    {visual.type === "Pie Chart" && (
+                    {(visual.type === "Pie Chart" || visual.type === "pieChart") && (
                         <div className="pie-container">
                             <div className="pie-placeholder" style={{
                                 width: '120px', height: '120px',
@@ -292,7 +292,7 @@ const VisualRenderer = ({ visual, isLarge }) => {
                             }}></div>
                         </div>
                     )}
-                    {visual.type === "Line Chart" && (
+                    {(visual.type === "Line Chart" || visual.type === "lineChart") && (
                         <div className="chart-container">
                             <div className="plot-area" style={{alignItems: 'stretch'}}>
                                 <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -306,18 +306,40 @@ const VisualRenderer = ({ visual, isLarge }) => {
                             </div>
                         </div>
                     )}
-                    {visual.type === "Area Chart" && (
+                    {(visual.type === "Area Chart" || visual.type === "areaChart") && (
                         <div className="chart-container">
-                            <div className="plot-area" style={{alignItems: 'stretch'}}>
-                                <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-                                    <path d="M0 100 L0 80 L25 40 L50 60 L75 20 L100 50 V 100 Z" fill="#2B88D8" opacity="0.5" />
-                                    <path d="M0 80 L25 40 L50 60 L75 20 L100 50" fill="none" stroke="#0078D4" strokeWidth="2" />
-                                </svg>
+                            <div className="d-flex flex-row h-100">
+                                <div className="y-axis" style={{justifyContent: 'space-between', height: '100%', paddingBottom: '20px'}}>
+                                    <span>100</span><span>50</span><span>0</span>
+                                </div>
+                                <div className="plot-area" style={{alignItems: 'stretch', position: 'relative', flex: 1}}>
+                                    <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none" style={{overflow: 'visible'}}>
+                                        <defs>
+                                            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0%" stopColor="#0078D4" stopOpacity="0.5"/>
+                                                <stop offset="100%" stopColor="#0078D4" stopOpacity="0.1"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <path d="M0 200 L0 120 L80 80 L160 140 L240 60 L320 100 L400 40 V 200 Z" fill="url(#areaGradient)" />
+                                        <path d="M0 120 L80 80 L160 140 L240 60 L320 100 L400 40" fill="none" stroke="#0078D4" strokeWidth="3" />
+                                        
+                                        {/* Data Points */}
+                                        {[
+                                            {x: 0, y: 120}, {x: 80, y: 80}, {x: 160, y: 140}, 
+                                            {x: 240, y: 60}, {x: 320, y: 100}, {x: 400, y: 40}
+                                        ].map((p, i) => (
+                                            <circle key={i} cx={p.x} cy={p.y} r="4" fill="#0078D4" stroke="white" strokeWidth="2" />
+                                        ))}
+                                    </svg>
+                                </div>
+                            </div>
+                            <div className="x-axis" style={{marginTop: '10px'}}>
+                                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
                             </div>
                         </div>
                     )}
-                    {!["Column Chart", "Bar Chart", "Pie Chart", "Line Chart", "Area Chart"].includes(visual.type) && (
-                        <div style={{color: '#666', fontSize: '12px'}}>Visual type not supported in mock mode</div>
+                    {!["Column Chart", "Bar Chart", "Pie Chart", "Line Chart", "Area Chart", "columnChart", "barChart", "pieChart", "lineChart", "areaChart"].includes(visual.type) && (
+                        <div style={{color: '#666', fontSize: '12px'}}>Visual type not supported in mock mode: {visual.type}</div>
                     )}
                 </div>
             )}

@@ -270,7 +270,7 @@ function App() {
                     <div className="header-left" onClick={() => setExpandedVisual(null)}>
                         <span className="back-arrow">‹</span>
                         <span className="back-text">Back to report</span>
-                        <span className="separator">|</span>
+                        <div className="header-separator"></div>
                         <span className="header-title">{expandedVisual.title.toUpperCase()}</span>
                         {expandedVisual.title === "Number of Opportunities by Salesperson" && <span className="header-subtitle">BY SALESPERSON</span>}
                     </div>
