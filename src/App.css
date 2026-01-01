@@ -12,6 +12,13 @@ body, html {
   scrollbar-width: thin;
 }
 
+.App {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
 body.dark {
     background: #3B3A39;
 }
@@ -673,5 +680,64 @@ body::-webkit-scrollbar-thumb {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Config Form Improvements */
+.config-card {
+    border: 1px solid #e1dfdd;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    background: white;
+    cursor: pointer;
+    text-align: left;
+}
+
+.config-card:hover {
+    border-color: #0078d4;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.config-card.primary {
+    border-left: 4px solid #0078d4;
+}
+
+.config-card.secondary {
+    border-left: 4px solid #605e5c;
+}
+
+.config-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-bottom: 16px;
+}
+
+.config-icon.primary {
+    background-color: #eff6fc;
+    color: #0078d4;
+}
+
+.config-icon.secondary {
+    background-color: #f3f2f1;
+    color: #605e5c;
+}
+
+.config-title {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: #323130;
+}
+
+.config-desc {
+    font-size: 13px;
+    color: #605e5c;
+    margin-bottom: 0;
+    line-height: 1.4;
 }
 

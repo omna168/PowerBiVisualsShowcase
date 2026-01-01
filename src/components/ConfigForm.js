@@ -40,40 +40,49 @@ const ConfigForm = ({ onConfigSubmit, onMockMode }) => {
     };
 
     return (
-        <div className="container mt-5" style={{ maxWidth: '600px' }}>
+        <div className="container mt-5" style={{ maxWidth: '800px' }}>
             
             {/* Header */}
             <div className="text-center mb-5">
-                <h2 className="fw-bold text-dark">Welcome to Visual Creator</h2>
-                <p className="text-muted">Create custom Power BI visuals in seconds.</p>
+                <h2 className="fw-bold text-dark mb-2">Welcome to Visual Creator</h2>
+                <p className="text-muted">Choose how you want to start creating Power BI visuals.</p>
             </div>
 
-            {/* Quick Start Card */}
-            <div className="card shadow-lg border-0 mb-4" style={{ borderRadius: '12px' }}>
-                <div className="card-body p-5 text-center">
-                    <div className="mb-4">
-                        <span style={{ fontSize: '3rem' }}>🚀</span>
+            <div className="row g-4 mb-5">
+                {/* Option 1: Sample Report */}
+                <div className="col-md-6">
+                    <div className="config-card primary p-4 h-100" onClick={handleSampleLoad}>
+                        <div className="config-icon primary">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M18 20V10M12 20V4M6 20v-6" />
+                            </svg>
+                        </div>
+                        <h3 className="config-title">Load Sample Report</h3>
+                        <p className="config-desc">
+                            Instantly load a Microsoft sample report. Best for testing the "Create Visual" workflow with real data.
+                        </p>
+                        <div className="mt-3 text-primary fw-bold small">
+                            Start Now →
+                        </div>
                     </div>
-                    <h3 className="fw-bold mb-3">Get Started</h3>
-                    <p className="text-muted mb-4">Load a Microsoft sample report and start creating visuals instantly.</p>
-                    
-                    <button 
-                        type="button" 
-                        className="btn btn-primary btn-lg w-100 py-3 fw-bold shadow-sm mb-3" 
-                        onClick={handleSampleLoad}
-                        style={{ borderRadius: '8px' }}
-                    >
-                        Load Sample Report
-                    </button>
+                </div>
 
-                    <button 
-                        type="button" 
-                        className="btn btn-outline-secondary w-100 py-2" 
-                        onClick={onMockMode}
-                        style={{ borderRadius: '8px', border: 'none', background: '#f8f9fa' }}
-                    >
-                        Try Mock Mode (No API required)
-                    </button>
+                {/* Option 2: Mock Mode */}
+                <div className="col-md-6">
+                    <div className="config-card secondary p-4 h-100" onClick={onMockMode}>
+                        <div className="config-icon secondary">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M4 16l6-6 4 4 6-6M4 20h16" />
+                            </svg>
+                        </div>
+                        <h3 className="config-title">Try Mock Mode</h3>
+                        <p className="config-desc">
+                            Test the UI and visual creation flow without connecting to Power BI services. No API keys required.
+                        </p>
+                        <div className="mt-3 text-secondary fw-bold small">
+                            Enter Mock Mode →
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -84,7 +93,7 @@ const ConfigForm = ({ onConfigSubmit, onMockMode }) => {
                     onClick={() => setShowManual(!showManual)}
                     style={{ fontSize: '0.9rem' }}
                 >
-                    {showManual ? 'Hide Advanced Configuration' : 'Advanced / Custom Report'} 
+                    {showManual ? 'Hide Advanced Configuration' : 'I have my own Report ID & Token'} 
                     <i className={`bi bi-chevron-${showManual ? 'up' : 'down'} ms-1`}></i>
                 </button>
             </div>

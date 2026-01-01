@@ -172,9 +172,6 @@ function App() {
       <div className="embed-container">
         {isMockMode ? (
             <div className="wrapper">
-                <h1 className="header">
-                    <img src="/img/contoso.svg" className="contoso" alt="Contoso" aria-label="Contoso logo" />
-                </h1>
                 
                 <main className="content">
                     <div className={`dropdown fixed-top ${isDropdownOpen ? 'show' : ''}`}>
