@@ -1,0 +1,328 @@
+import React from 'react';
+
+const VisualRenderer = ({ visual, isLarge }) => {
+    return (
+        <>
+            {/* 1. Actual Revenue by Industry */}
+            {visual.title === "Actual Revenue by Industry" && (
+                <div className="chart-container">
+                    <div className="d-flex flex-row h-100">
+                        <div className="y-axis-label" style={isLarge ? {fontSize: '14px', fontWeight: 'bold', color: '#333'} : {}}>
+                            {isLarge ? "Actual Revenue" : "Actual Rev..."}
+                        </div>
+                        <div className="y-axis" style={isLarge ? {justifyContent: 'space-between', height: '90%', marginBottom: '20px'} : {}}>
+                            {isLarge ? (
+                                <><span>$40M</span><span>$30M</span><span>$20M</span><span>$10M</span><span>$0M</span></>
+                            ) : (
+                                <><span>$40M</span><span>$30M</span><span>$20M</span><span>$0M</span></>
+                            )}
+                        </div>
+                        <div className="plot-area">
+                            {[
+                                {h: '75%', l: '$30M', full: 'Consumer Goods', short: 'Con...'}, 
+                                {h: '37%', l: '$15M', full: 'Business Services', short: 'Busi...'}, 
+                                {h: '35%', l: '', full: 'Financial Services', short: 'Fina...'}, 
+                                {h: '30%', l: '$12M', full: 'Wholesale', short: 'Wh...'}, 
+                                {h: '27%', l: '', full: 'Durable Goods', short: 'Dur...'}, 
+                                {h: '22%', l: '$9M', full: 'Transportation', short: 'Tran...'}, 
+                                {h: '20%', l: '$8M', full: 'Insurance', short: 'Insu...'}, 
+                                {h: '10%', l: '$4M', full: 'Vehicle', short: 'Vehi...'}, 
+                                {h: '10%', l: '$4M', full: 'Broadcasting', short: 'Broa...'}
+                            ].map((d, i) => (
+                                <div key={i} className="column-bar-group">
+                                    <span className="data-label" style={isLarge ? {fontSize: '12px'} : {}}>{d.l}</span>
+                                    <div className="column-bar" style={{height: d.h, backgroundColor: '#0078D4'}}></div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="x-axis" style={isLarge ? {marginTop: '10px'} : {}}>
+                        {[
+                            {full: 'Consumer Goods', short: 'Con...'}, 
+                            {full: 'Business Services', short: 'Busi...'}, 
+                            {full: 'Financial Services', short: 'Fina...'}, 
+                            {full: 'Wholesale', short: 'Wh...'}, 
+                            {full: 'Durable Goods', short: 'Dur...'}, 
+                            {full: 'Transportation', short: 'Tran...'}, 
+                            {full: 'Insurance', short: 'Insu...'}, 
+                            {full: 'Vehicle', short: 'Vehi...'}, 
+                            {full: 'Broadcasting', short: 'Broa...'}
+                        ].map((l, i) => (
+                            <span key={i} style={isLarge ? {
+                                transform: 'none', 
+                                textAlign: 'center', 
+                                width: '60px', 
+                                fontSize: '12px', 
+                                color: '#666',
+                                whiteSpace: 'normal',
+                                lineHeight: '1.1'
+                            } : {
+                                transform: 'rotate(-45deg)', 
+                                transformOrigin: 'top left', 
+                                marginTop: '5px', 
+                                fontSize: '9px',
+                                width: '20px',
+                                whiteSpace: 'nowrap'
+                            }}>
+                                {isLarge ? l.full : l.short}
+                            </span>
+                        ))}
+                    </div>
+                    {isLarge && <div style={{textAlign: 'center', fontWeight: 'bold', marginTop: '10px', fontSize: '14px', color: '#333'}}>Industry</div>}
+                </div>
+            )}
+
+            {/* 2. Number of Opportunities by Industry */}
+            {visual.title === "Number of Opportunities by Industry" && (
+                <div className="chart-container">
+                    <div className="d-flex flex-row h-100">
+                        <div className="y-axis-label">Number ...</div>
+                        <div className="y-axis">
+                            <span>100</span><span>0</span>
+                        </div>
+                        <div className="plot-area" style={{alignItems: 'stretch'}}>
+                            <svg width="100%" height="100%" viewBox="0 0 300 150" preserveAspectRatio="none">
+                                <path d="M0 150 L0 20 L40 80 L80 85 L120 85 L160 90 L200 92 L240 95 L280 110 L320 112 V 150 Z" fill="#2B88D8" opacity="0.5" />
+                                <path d="M0 20 L40 80 L80 85 L120 85 L160 90 L200 92 L240 95 L280 110 L320 112" fill="none" stroke="#0078D4" strokeWidth="3" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div className="x-axis">
+                        {['Co...', 'Bus...', 'Fin...', 'Wh...', 'Dur...', 'Tra...', 'Ins...', 'Ve...', 'Bro...'].map((l, i) => (
+                            <span key={i} style={{transform: 'rotate(-90deg)', transformOrigin: 'top left', marginTop: '10px', fontSize: '9px'}}>{l}</span>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* 3. Estimated Revenue by Salesperson */}
+            {visual.title === "Estimated Revenue by Salesperson" && (
+                <div className="bar-chart-container">
+                    <div className="d-flex flex-row w-100 h-100">
+                        <div className="y-axis-label">Salesperson</div>
+                        <div className="bar-y-axis">
+                            <span>June Sm...</span>
+                            <span>Sanjay S...</span>
+                        </div>
+                        <div className="bar-plot-area">
+                            <div className="bar-horizontal" style={{width: '80%', backgroundColor: '#0078D4'}}>$33M</div>
+                            <div className="bar-horizontal" style={{width: '45%', backgroundColor: '#0078D4'}}>$19M</div>
+                        </div>
+                    </div>
+                    <div className="bar-x-axis">
+                        <span>$0M</span><span>$20M</span><span>$40M</span>
+                    </div>
+                </div>
+            )}
+
+            {/* 4. Pie Chart */}
+            {visual.title === "Number of Opportunities by Opportunity Status" && (
+                <div className="pie-container">
+                    <div className="pie-placeholder" style={{
+                        background: `conic-gradient(
+                            #0078D4 0% 35%, 
+                            #102576 35% 60%, 
+                            #E06C36 60% 77%, 
+                            #6B007B 77% 90%, 
+                            #E6389F 90% 100%
+                        )`
+                    }}></div>
+                    <div className="pie-label" style={{top: '10%', right: '0'}}>Closed Won<br/>124</div>
+                    <div className="pie-label" style={{bottom: '10%', right: '10%'}}>Close... 88</div>
+                    <div className="pie-label" style={{bottom: '20%', left: '0'}}>Quote Sent<br/>61</div>
+                    <div className="pie-label" style={{top: '10%', left: '0'}}>Meeting Sch...<br/>46</div>
+                </div>
+            )}
+
+            {/* 5. Line Chart */}
+            {visual.title === "Number of Opportunities by Salesperson" && (
+                <div className="chart-container">
+                    <div className="d-flex flex-row h-100">
+                        <div className="y-axis-label" style={isLarge ? {fontSize: '14px', fontWeight: 'bold', color: '#333'} : {}}>
+                            {isLarge ? "Number of Opportunities" : "Number o..."}
+                        </div>
+                        <div className="y-axis" style={isLarge ? {justifyContent: 'space-between', height: '85%', marginTop: 'auto', marginBottom: '30px', borderRight: 'none'} : {}}>
+                            {isLarge ? (
+                                <>
+                                    <span style={{fontSize: '12px', color: '#666'}}>100</span>
+                                    <span style={{fontSize: '12px', color: '#666'}}>50</span>
+                                    <span style={{fontSize: '12px', color: '#666'}}>0</span>
+                                </>
+                            ) : (
+                                <><span>100</span><span>0</span></>
+                            )}
+                        </div>
+                        <div className="plot-area" style={{alignItems: 'stretch', position: 'relative'}}>
+                            <svg className="line-chart-svg" viewBox="0 0 800 400" preserveAspectRatio="none" style={{overflow: 'visible'}}>
+                                {/* Grid lines for Large View */}
+                                {isLarge && (
+                                    <>
+                                        <line x1="0" y1="0" x2="800" y2="0" stroke="#e6e6e6" strokeWidth="1" />
+                                        <line x1="0" y1="200" x2="800" y2="200" stroke="#e6e6e6" strokeWidth="1" />
+                                        <line x1="0" y1="400" x2="800" y2="400" stroke="#e6e6e6" strokeWidth="1" />
+                                    </>
+                                )}
+                                
+                                <path 
+                                    d={isLarge 
+                                        ? "M40 224 L120 344 L200 316 L280 328 L360 112 L440 336 L520 204 L600 320 L680 304" 
+                                        : "M10 100 L45 130 L80 120 L115 125 L150 30 L185 128 L220 70 L255 120 L290 118"
+                                    } 
+                                    fill="none" 
+                                    stroke="#0099FF" 
+                                    strokeWidth={isLarge ? "4" : "3"} 
+                                />
+                                
+                                {/* Data Points & Labels */}
+                                {(isLarge ? [
+                                    {x: 40, y: 224, v: 44}, {x: 120, y: 344, v: 14}, {x: 200, y: 316, v: 21},
+                                    {x: 280, y: 328, v: 18}, {x: 360, y: 112, v: 128}, {x: 440, y: 336, v: 16},
+                                    {x: 520, y: 204, v: 74}, {x: 600, y: 320, v: 20}, {x: 680, y: 304, v: 24}
+                                ] : [
+                                    {x: 10, y: 100, v: 44}, {x: 45, y: 130, v: 14}, {x: 80, y: 120, v: 21},
+                                    {x: 115, y: 125, v: 18}, {x: 150, y: 30, v: 128}, {x: 185, y: 128, v: 16},
+                                    {x: 220, y: 70, v: 74}, {x: 255, y: 120, v: 20}, {x: 290, y: 118, v: 24}
+                                ]).map((p, i) => (
+                                    <g key={i}>
+                                        {!isLarge && <circle cx={p.x} cy={p.y} r="3" fill="#0078D4" />}
+                                        <text 
+                                            x={p.x} 
+                                            y={p.y - 15} 
+                                            className="line-point-label" 
+                                            style={isLarge ? {fontSize: '14px', fill: '#666'} : {}}
+                                        >
+                                            {p.v}
+                                        </text>
+                                    </g>
+                                ))}
+                            </svg>
+                        </div>
+                    </div>
+                    <div className="x-axis" style={isLarge ? {borderTop: 'none', marginTop: '0', paddingTop: '10px'} : {}}>
+                        {(isLarge ? [
+                            'Alicia\nThomber', 'Anne Weiler', 'Carlos Grilo', 'Christa Geller', 
+                            'June Smith', 'Molly Clark', 'Sanjay Shah', 'Spencer Low', 'Sven\nMortensen'
+                        ] : [
+                            'Alici...', 'Ann...', 'Carl...', 'Chris...', 'June...', 'Moll...', 'Sanj...', 'Spen...', 'Sven...'
+                        ]).map((l, i) => (
+                            <span key={i} style={isLarge ? {
+                                transform: 'none', 
+                                textAlign: 'center', 
+                                width: '80px', 
+                                fontSize: '12px', 
+                                color: '#666',
+                                whiteSpace: 'pre-line'
+                            } : {
+                                transform: 'rotate(-45deg)', 
+                                transformOrigin: 'top left', 
+                                marginTop: '5px', 
+                                fontSize: '9px'
+                            }}>
+                                {l}
+                            </span>
+                        ))}
+                    </div>
+                    {isLarge && <div style={{textAlign: 'center', fontWeight: 'bold', marginTop: '10px', fontSize: '14px', color: '#333'}}>Salesperson</div>}
+                </div>
+            )}
+
+            {/* 6. System Embedded Programming (Column) */}
+            {visual.title === "this is the system embeded programming" && (
+                <div className="chart-container">
+                    <div className="d-flex flex-row h-100">
+                        <div className="y-axis-label">Actual R...</div>
+                        <div className="y-axis">
+                            <span>$20M</span><span>$0M</span>
+                        </div>
+                        <div className="plot-area">
+                            {[
+                                {h: '90%', l: ''}, {h: '60%', l: ''}, {h: '55%', l: ''}, 
+                                {h: '50%', l: ''}, {h: '45%', l: ''}, {h: '40%', l: ''}, 
+                                {h: '20%', l: ''}, {h: '18%', l: ''}
+                            ].map((d, i) => (
+                                <div key={i} className="column-bar-group">
+                                    <div className="column-bar" style={{height: d.h, backgroundColor: '#0099FF'}}></div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="x-axis">
+                        {['Con...', 'Bus...', 'Fin...', 'Wh...', 'Dur...', 'Tra...', 'Ins...', 'Veh...', 'Bro...'].map((l, i) => (
+                            <span key={i} style={{transform: 'rotate(-90deg)', transformOrigin: 'top left', marginTop: '10px', fontSize: '9px'}}>{l}</span>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Generic Renderer for Newly Created Visuals */}
+            {visual.title && visual.title.startsWith("New ") && (
+                <div className="chart-container" style={{justifyContent: 'center', alignItems: 'center', display: 'flex', height: '100%', width: '100%'}}>
+                    {visual.type === "Column Chart" && (
+                        <div className="chart-container">
+                            <div className="d-flex flex-row h-100">
+                                <div className="y-axis"><span>100</span><span>50</span><span>0</span></div>
+                                <div className="plot-area">
+                                    {[60, 80, 45, 90, 30].map((h, i) => (
+                                        <div key={i} className="column-bar-group" style={{width: '15%'}}>
+                                            <div className="column-bar" style={{height: `${h}%`, backgroundColor: '#0078D4'}}></div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="x-axis"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span></div>
+                        </div>
+                    )}
+                    {visual.type === "Bar Chart" && (
+                        <div className="bar-chart-container">
+                            <div className="d-flex flex-row w-100 h-100">
+                                <div className="bar-y-axis"><span>Cat A</span><span>Cat B</span><span>Cat C</span></div>
+                                <div className="bar-plot-area">
+                                    <div className="bar-horizontal" style={{width: '70%', backgroundColor: '#0078D4', marginBottom: '10px'}}>70</div>
+                                    <div className="bar-horizontal" style={{width: '40%', backgroundColor: '#0078D4', marginBottom: '10px'}}>40</div>
+                                    <div className="bar-horizontal" style={{width: '90%', backgroundColor: '#0078D4'}}>90</div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {visual.type === "Pie Chart" && (
+                        <div className="pie-container">
+                            <div className="pie-placeholder" style={{
+                                width: '120px', height: '120px',
+                                background: `conic-gradient(#0078D4 0% 33%, #102576 33% 66%, #E06C36 66% 100%)`
+                            }}></div>
+                        </div>
+                    )}
+                    {visual.type === "Line Chart" && (
+                        <div className="chart-container">
+                            <div className="plot-area" style={{alignItems: 'stretch'}}>
+                                <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                    <path d="M0 80 L25 40 L50 60 L75 20 L100 50" fill="none" stroke="#0078D4" strokeWidth="2" />
+                                    <circle cx="0" cy="80" r="2" fill="#0078D4" />
+                                    <circle cx="25" cy="40" r="2" fill="#0078D4" />
+                                    <circle cx="50" cy="60" r="2" fill="#0078D4" />
+                                    <circle cx="75" cy="20" r="2" fill="#0078D4" />
+                                    <circle cx="100" cy="50" r="2" fill="#0078D4" />
+                                </svg>
+                            </div>
+                        </div>
+                    )}
+                    {visual.type === "Area Chart" && (
+                        <div className="chart-container">
+                            <div className="plot-area" style={{alignItems: 'stretch'}}>
+                                <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                    <path d="M0 100 L0 80 L25 40 L50 60 L75 20 L100 50 V 100 Z" fill="#2B88D8" opacity="0.5" />
+                                    <path d="M0 80 L25 40 L50 60 L75 20 L100 50" fill="none" stroke="#0078D4" strokeWidth="2" />
+                                </svg>
+                            </div>
+                        </div>
+                    )}
+                    {!["Column Chart", "Bar Chart", "Pie Chart", "Line Chart", "Area Chart"].includes(visual.type) && (
+                        <div style={{color: '#666', fontSize: '12px'}}>Visual type not supported in mock mode</div>
+                    )}
+                </div>
+            )}
+        </>
+    );
+};
+
+export default VisualRenderer;

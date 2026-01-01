@@ -7,12 +7,14 @@ import VisualCreatorModal from './components/VisualCreatorModal';
 import ConfigForm from './components/ConfigForm';
 import { createMockReport } from './utils/mockPowerBI';
 import { jsonDataColors } from './utils/themes';
+import VisualRenderer from './components/VisualRenderer';
 import './App.css';
 
 function App() {
   const [embedConfig, setEmbedConfig] = useState(null);
   const [report, setReport] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [expandedVisual, setExpandedVisual] = useState(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState(null);
   const [showConfigForm, setShowConfigForm] = useState(false);
@@ -201,165 +203,18 @@ function App() {
 
                     <div className="visuals-grid">
                         {mockVisuals.map((visual) => (
-                            <div key={visual.id} className="visual-card">
+                            <div 
+                                key={visual.id} 
+                                className="visual-card" 
+                                onClick={() => setExpandedVisual(visual)}
+                                style={{cursor: 'pointer'}}
+                            >
                                 <div className="visual-header">
                                     <span>{visual.title}</span>
                                     <span className="badge bg-light text-dark border">{visual.type}</span>
                                 </div>
                                 <div className="visual-content" style={{padding: '10px'}}>
-                                    {/* 1. Actual Revenue by Industry */}
-                                    {visual.title === "Actual Revenue by Industry" && (
-                                        <div className="chart-container">
-                                            <div className="d-flex flex-row h-100">
-                                                <div className="y-axis-label">Actual Rev...</div>
-                                                <div className="y-axis">
-                                                    <span>$40M</span><span>$30M</span><span>$20M</span><span>$0M</span>
-                                                </div>
-                                                <div className="plot-area">
-                                                    {[
-                                                        {h: '75%', l: '$30M', x: 'Con...'}, {h: '37%', l: '$15M', x: 'Busi...'}, 
-                                                        {h: '35%', l: '', x: 'Fina...'}, {h: '30%', l: '$12M', x: 'Wh...'}, 
-                                                        {h: '27%', l: '', x: 'Dur...'}, {h: '22%', l: '$9M', x: 'Tran...'}, 
-                                                        {h: '20%', l: '$8M', x: 'Insu...'}, {h: '10%', l: '$4M', x: 'Vehi...'}, 
-                                                        {h: '10%', l: '$4M', x: 'Broa...'}
-                                                    ].map((d, i) => (
-                                                        <div key={i} className="column-bar-group">
-                                                            <span className="data-label">{d.l}</span>
-                                                            <div className="column-bar" style={{height: d.h, backgroundColor: '#0078D4'}}></div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                            <div className="x-axis">
-                                                {['Con...', 'Busi...', 'Fina...', 'Wh...', 'Dur...', 'Tran...', 'Insu...', 'Vehi...', 'Broa...'].map((l, i) => (
-                                                    <span key={i} style={{transform: 'rotate(-90deg)', transformOrigin: 'top left', marginTop: '10px', fontSize: '9px'}}>{l}</span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* 2. Number of Opportunities by Industry */}
-                                    {visual.title === "Number of Opportunities by Industry" && (
-                                        <div className="chart-container">
-                                            <div className="d-flex flex-row h-100">
-                                                <div className="y-axis-label">Number ...</div>
-                                                <div className="y-axis">
-                                                    <span>100</span><span>0</span>
-                                                </div>
-                                                <div className="plot-area" style={{alignItems: 'stretch'}}>
-                                                    <svg width="100%" height="100%" viewBox="0 0 300 150" preserveAspectRatio="none">
-                                                        <path d="M0 150 L0 20 L40 80 L80 85 L120 85 L160 90 L200 92 L240 95 L280 110 L320 112 V 150 Z" fill="#2B88D8" opacity="0.5" />
-                                                        <path d="M0 20 L40 80 L80 85 L120 85 L160 90 L200 92 L240 95 L280 110 L320 112" fill="none" stroke="#0078D4" strokeWidth="3" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                            <div className="x-axis">
-                                                {['Co...', 'Bus...', 'Fin...', 'Wh...', 'Dur...', 'Tra...', 'Ins...', 'Ve...', 'Bro...'].map((l, i) => (
-                                                    <span key={i} style={{transform: 'rotate(-90deg)', transformOrigin: 'top left', marginTop: '10px', fontSize: '9px'}}>{l}</span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* 3. Estimated Revenue by Salesperson */}
-                                    {visual.title === "Estimated Revenue by Salesperson" && (
-                                        <div className="bar-chart-container">
-                                            <div className="d-flex flex-row w-100 h-100">
-                                                <div className="y-axis-label">Salesperson</div>
-                                                <div className="bar-y-axis">
-                                                    <span>June Sm...</span>
-                                                    <span>Sanjay S...</span>
-                                                </div>
-                                                <div className="bar-plot-area">
-                                                    <div className="bar-horizontal" style={{width: '80%', backgroundColor: '#0078D4'}}>$33M</div>
-                                                    <div className="bar-horizontal" style={{width: '45%', backgroundColor: '#0078D4'}}>$19M</div>
-                                                </div>
-                                            </div>
-                                            <div className="bar-x-axis">
-                                                <span>$0M</span><span>$20M</span><span>$40M</span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* 4. Pie Chart */}
-                                    {visual.title === "Number of Opportunities by Opportunity Status" && (
-                                        <div className="pie-container">
-                                            <div className="pie-placeholder" style={{
-                                                background: `conic-gradient(
-                                                    #0078D4 0% 35%, 
-                                                    #102576 35% 60%, 
-                                                    #E06C36 60% 77%, 
-                                                    #6B007B 77% 90%, 
-                                                    #E6389F 90% 100%
-                                                )`
-                                            }}></div>
-                                            <div className="pie-label" style={{top: '10%', right: '0'}}>Closed Won<br/>124</div>
-                                            <div className="pie-label" style={{bottom: '10%', right: '10%'}}>Close... 88</div>
-                                            <div className="pie-label" style={{bottom: '20%', left: '0'}}>Quote Sent<br/>61</div>
-                                            <div className="pie-label" style={{top: '10%', left: '0'}}>Meeting Sch...<br/>46</div>
-                                        </div>
-                                    )}
-
-                                    {/* 5. Line Chart */}
-                                    {visual.title === "Number of Opportunities by Salesperson" && (
-                                        <div className="chart-container">
-                                            <div className="d-flex flex-row h-100">
-                                                <div className="y-axis-label">Number o...</div>
-                                                <div className="y-axis">
-                                                    <span>100</span><span>0</span>
-                                                </div>
-                                                <div className="plot-area" style={{alignItems: 'stretch'}}>
-                                                    <svg className="line-chart-svg" viewBox="0 0 300 150" preserveAspectRatio="none">
-                                                        <path d="M10 100 L45 130 L80 120 L115 125 L150 30 L185 128 L220 70 L255 120 L290 118" fill="none" stroke="#0078D4" strokeWidth="3" />
-                                                        {/* Data Points & Labels */}
-                                                        {[
-                                                            {x: 10, y: 100, v: 44}, {x: 45, y: 130, v: 14}, {x: 80, y: 120, v: 21},
-                                                            {x: 115, y: 125, v: 18}, {x: 150, y: 30, v: 128}, {x: 185, y: 128, v: 16},
-                                                            {x: 220, y: 70, v: 74}, {x: 255, y: 120, v: 20}, {x: 290, y: 118, v: 24}
-                                                        ].map((p, i) => (
-                                                            <g key={i}>
-                                                                <circle cx={p.x} cy={p.y} r="3" fill="#0078D4" />
-                                                                <text x={p.x} y={p.y - 10} className="line-point-label">{p.v}</text>
-                                                            </g>
-                                                        ))}
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                            <div className="x-axis">
-                                                {['Alici...', 'Ann...', 'Carl...', 'Chris...', 'June...', 'Moll...', 'Sanj...', 'Spen...', 'Sven...'].map((l, i) => (
-                                                    <span key={i} style={{transform: 'rotate(-45deg)', transformOrigin: 'top left', marginTop: '5px', fontSize: '9px'}}>{l}</span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* 6. System Embedded Programming (Column) */}
-                                    {visual.title === "this is the system embeded programming" && (
-                                        <div className="chart-container">
-                                            <div className="d-flex flex-row h-100">
-                                                <div className="y-axis-label">Actual R...</div>
-                                                <div className="y-axis">
-                                                    <span>$20M</span><span>$0M</span>
-                                                </div>
-                                                <div className="plot-area">
-                                                    {[
-                                                        {h: '90%', l: ''}, {h: '60%', l: ''}, {h: '55%', l: ''}, 
-                                                        {h: '50%', l: ''}, {h: '45%', l: ''}, {h: '40%', l: ''}, 
-                                                        {h: '20%', l: ''}, {h: '18%', l: ''}
-                                                    ].map((d, i) => (
-                                                        <div key={i} className="column-bar-group">
-                                                            <div className="column-bar" style={{height: d.h, backgroundColor: '#0099FF'}}></div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                            <div className="x-axis">
-                                                {['Con...', 'Bus...', 'Fin...', 'Wh...', 'Dur...', 'Tra...', 'Ins...', 'Veh...', 'Bro...'].map((l, i) => (
-                                                    <span key={i} style={{transform: 'rotate(-90deg)', transformOrigin: 'top left', marginTop: '10px', fontSize: '9px'}}>{l}</span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
+                                    <VisualRenderer visual={visual} />
                                 </div>
                             </div>
                         ))}
@@ -406,6 +261,34 @@ function App() {
         onClose={() => setShowModal(false)} 
         onCreate={handleCreateVisual} 
       />
+
+      {/* Expanded Visual Modal */}
+      {expandedVisual && (
+        <div className="visual-modal-overlay" onClick={() => setExpandedVisual(null)}>
+            <div className="visual-modal-content" onClick={e => e.stopPropagation()}>
+                <div className="visual-header-custom">
+                    <div className="header-left" onClick={() => setExpandedVisual(null)}>
+                        <span className="back-arrow">‹</span>
+                        <span className="back-text">Back to report</span>
+                        <span className="separator">|</span>
+                        <span className="header-title">{expandedVisual.title.toUpperCase()}</span>
+                        {expandedVisual.title === "Number of Opportunities by Salesperson" && <span className="header-subtitle">BY SALESPERSON</span>}
+                    </div>
+                    <div className="header-right">
+                        <span className="icon-filter">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path></svg>
+                        </span>
+                        <span className="icon-menu">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg>
+                        </span>
+                    </div>
+                </div>
+                <div className="visual-content-large">
+                    <VisualRenderer visual={expandedVisual} isLarge={true} />
+                </div>
+            </div>
+        </div>
+      )}
     </div>
   );
 }
