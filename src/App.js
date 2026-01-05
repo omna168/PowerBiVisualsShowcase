@@ -6,7 +6,7 @@ import { dataFieldsTargets } from './utils/constants';
 import VisualCreatorModal from './components/VisualCreatorModal';
 import ConfigForm from './components/ConfigForm';
 import { createMockReport } from './utils/mockPowerBI';
-import { jsonDataColors } from './utils/themes';
+import { jsonDataColors, themes } from './utils/themes';
 import VisualRenderer from './components/VisualRenderer';
 import './App.css';
 
@@ -22,8 +22,28 @@ function App() {
   const [mockVisuals, setMockVisuals] = useState([]);
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const currentTheme = jsonDataColors[currentThemeIndex];
+
+  useEffect(() => {
+    if (isDarkMode) {
+        document.body.classList.add('dark');
+    } else {
+        document.body.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  // Apply theme to embedded report
+  useEffect(() => {
+    if (report && !isMockMode) {
+        const themeId = isDarkMode ? 1 : 0;
+        const newTheme = { ...jsonDataColors[currentThemeIndex], ...themes[themeId] };
+        
+        report.applyTheme({ themeJson: newTheme })
+            .catch(error => console.error("Error applying theme:", error));
+    }
+  }, [currentThemeIndex, isDarkMode, report, isMockMode]);
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -182,27 +202,57 @@ function App() {
                             aria-haspopup="true" 
                             aria-expanded={isDropdownOpen}
                         >
-                            <svg role="presentation" className="bucket-theme" width="16" height="16" viewBox="0 0 16 16" fill="#4A565A" xmlns="http://www.w3.org/2000/svg">
+                            <svg role="presentation" className="bucket-theme" width="16" height="16" viewBox="0 0 16 16" fill={isDarkMode ? "#FFFFFF" : "#4A565A"} xmlns="http://www.w3.org/2000/svg">
                                 <path d="M13.2031 7.5L6.5 14.2031L0.796875 8.5L6 3.28906V1.5C6 1.29167 6.03906 1.09635 6.11719 0.914062C6.19531 0.731771 6.30208 0.572917 6.4375 0.4375C6.57292 0.302083 6.73177 0.195312 6.91406 0.117188C7.09635 0.0390625 7.29167 0 7.5 0C7.70833 0 7.90365 0.0390625 8.08594 0.117188C8.26823 0.195312 8.42708 0.302083 8.5625 0.4375C8.69792 0.572917 8.80469 0.731771 8.88281 0.914062C8.96094 1.09635 9 1.29167 9 1.5V6.5H8V1.5C8 1.36458 7.95052 1.2474 7.85156 1.14844C7.7526 1.04948 7.63542 1 7.5 1C7.36458 1 7.2474 1.04948 7.14844 1.14844C7.04948 1.2474 7 1.36458 7 1.5V3.71094L2.71094 8H11.2891L11.7969 7.5L10.1484 5.85156L10.8516 5.14844L13.2031 7.5ZM6.5 12.7969L10.2891 9H2.71094L6.5 12.7969ZM15.4609 12.4219C15.5651 12.6042 15.6432 12.7969 15.6953 13C15.7474 13.2031 15.7734 13.4115 15.7734 13.625C15.7734 13.9427 15.7161 14.2448 15.6016 14.5312C15.487 14.8177 15.3281 15.0703 15.125 15.2891C14.9219 15.5078 14.6797 15.6823 14.3984 15.8125C14.1224 15.9375 13.8229 16 13.5 16C13.1771 16 12.875 15.9375 12.5938 15.8125C12.3125 15.6875 12.0677 15.5208 11.8594 15.3125C11.651 15.099 11.4844 14.8516 11.3594 14.5703C11.2396 14.2839 11.1797 13.9818 11.1797 13.6641C11.1797 13.2526 11.2839 12.8672 11.4922 12.5078L13.5 8.99219L15.4609 12.4219ZM13.5 15C13.6875 15 13.8594 14.9635 14.0156 14.8906C14.1771 14.8125 14.3125 14.7109 14.4219 14.5859C14.5365 14.4557 14.625 14.3073 14.6875 14.1406C14.75 13.974 14.7812 13.7995 14.7812 13.6172C14.7812 13.362 14.7188 13.1276 14.5938 12.9141L13.5 11.0078L12.3594 13.0078C12.2396 13.2161 12.1797 13.4349 12.1797 13.6641C12.1797 13.8464 12.2135 14.0182 12.2812 14.1797C12.3542 14.3411 12.4505 14.4818 12.5703 14.6016C12.6901 14.7214 12.8281 14.8177 12.9844 14.8906C13.1458 14.9635 13.3177 15 13.5 15Z"/>
                             </svg>
                             <label className="theme-selector-label">Choose theme</label>
                         </button>
-                        <ul className={`dropdown-menu checkbox-menu allow-focus theme-container ${isDropdownOpen ? 'show' : ''}`} id="theme-dropdown">
+                        <div className={`dropdown-menu checkbox-menu allow-focus theme-container ${isDropdownOpen ? 'show' : ''}`} id="theme-dropdown">
+                            
+                            {/* Dark Mode Toggle */}
+                            <div className="theme-element-container" role="menuitem">
+                                <span className="theme-switch-label" id="dark-label-text">Dark mode</span>
+                                <label className="switch" aria-labelledby="dark-label-text">
+                                    <input 
+                                        id="theme-slider" 
+                                        type="checkbox" 
+                                        checked={isDarkMode}
+                                        onChange={(e) => setIsDarkMode(e.target.checked)}
+                                    />
+                                    <span className="slider round"></span>
+                                </label>
+                            </div>
+
+                            <div className="dropdown-separator" role="separator"></div>
+
+                            {/* Data Colors */}
                             {jsonDataColors.map((theme, index) => (
-                                <li key={theme.name} onClick={() => { setCurrentThemeIndex(index); setIsDropdownOpen(false); }}>
-                                    <label>
-                                        <div className="data-color-container">
-                                            {theme.dataColors.map((color, i) => (
-                                                <div key={i} className="data-color" style={{ backgroundColor: color }}></div>
-                                            ))}
-                                        </div>
-                                        <div className="data-color-name" style={{ fontWeight: currentThemeIndex === index ? 'bold' : 'normal' }}>
-                                            {theme.name}
-                                        </div>
-                                    </label>
-                                </li>
+                                <div 
+                                    key={theme.name} 
+                                    className="theme-element-container" 
+                                    role="group"
+                                    onClick={() => { setCurrentThemeIndex(index); setIsDropdownOpen(false); }}
+                                    style={{cursor: 'pointer'}}
+                                >
+                                    <input 
+                                        type="radio" 
+                                        name="data-color" 
+                                        checked={currentThemeIndex === index}
+                                        readOnly
+                                        className="form-check-input me-2"
+                                        style={{marginTop: '0'}}
+                                    />
+                                    <span className="data-color-name">
+                                        {theme.name}
+                                    </span>
+                                    <div className="theme-colors">
+                                        {theme.dataColors.map((color, i) => (
+                                            <div key={i} className="data-color" style={{ backgroundColor: color }}></div>
+                                        ))}
+                                    </div>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     </div>
                     <div role="separator" className="horizontal-rule fixed-top"></div>
 
@@ -225,7 +275,7 @@ function App() {
                                     <span className="badge bg-light text-dark border" style={{marginLeft: '8px'}}>{visual.type}</span>
                                 </div>
                                 <div className="visual-content" style={{padding: '10px'}}>
-                                    <VisualRenderer visual={visual} />
+                                    <VisualRenderer visual={visual} theme={currentTheme} isDarkMode={isDarkMode} />
                                 </div>
                             </div>
                         ))}

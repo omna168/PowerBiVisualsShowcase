@@ -33,7 +33,17 @@ const VisualCreatorModal = ({ show, onClose, onCreate }) => {
     };
 
     const handleCreate = () => {
-        onCreate(selectedVisualType, selectedFields, formatting);
+        // Map selectedFields (display names) to internal names
+        const mappedFields = {};
+        Object.keys(selectedFields).forEach(displayRole => {
+            const roleIndex = currentVisualConfig.dataRoles.indexOf(displayRole);
+            if (roleIndex !== -1) {
+                const internalRole = currentVisualConfig.dataRoleNames[roleIndex];
+                mappedFields[internalRole] = selectedFields[displayRole];
+            }
+        });
+
+        onCreate(selectedVisualType, mappedFields, formatting);
         onClose();
     };
 
@@ -77,7 +87,7 @@ const VisualCreatorModal = ({ show, onClose, onCreate }) => {
                                                         value={selectedFields[role] || ''}
                                                         onChange={(e) => handleFieldChange(role, e.target.value)}
                                                     >
-                                                        <option value="">Select an option</option>
+                                                        <option value="">Select {role}</option>
                                                         {availableFields.map(field => (
                                                             <option key={field} value={field}>{field}</option>
                                                         ))}

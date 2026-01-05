@@ -1,14 +1,16 @@
 // Define the available data roles for the visual types
 export const visualTypeToDataRoles = [
-    { name: "columnChart", displayName: "Column chart", dataRoles: ["Axis", "Values", "Tooltips"], dataRoleNames: ["Category", "Y", "Tooltips"] },
-    { name: "areaChart", displayName: "Area chart", dataRoles: ["Axis", "Legend", "Values"], dataRoleNames: ["Category", "Series", "Y"] },
-    { name: "barChart", displayName: "Bar chart", dataRoles: ["Axis", "Values", "Tooltips"], dataRoleNames: ["Category", "Y", "Tooltips"] },
+    { name: "columnChart", displayName: "Column chart", dataRoles: ["X-axis", "Y-axis", "Tooltips"], dataRoleNames: ["Category", "Y", "Tooltips"] },
+    { name: "areaChart", displayName: "Area chart", dataRoles: ["X-axis", "Legend", "Y-axis"], dataRoleNames: ["Category", "Series", "Y"] },
+    { name: "barChart", displayName: "Bar chart", dataRoles: ["Y-axis", "X-axis", "Tooltips"], dataRoleNames: ["Category", "Y", "Tooltips"] },
     { name: "pieChart", displayName: "Pie chart", dataRoles: ["Legend", "Values", "Tooltips"], dataRoleNames: ["Category", "Y", "Tooltips"] },
-    { name: "lineChart", displayName: "Line chart", dataRoles: ["Axis", "Legend", "Values"], dataRoleNames: ["Category", "Series", "Y"] },
+    { name: "lineChart", displayName: "Line chart", dataRoles: ["X-axis", "Legend", "Y-axis"], dataRoleNames: ["Category", "Series", "Y"] },
 ];
 
 // Define the available fields for each data role
 export const dataRolesToFields = [
+    { dataRole: "X-axis", Fields: ["Industry", "Opportunity Status", "Lead Rating", "Salesperson"] },
+    { dataRole: "Y-axis", Fields: ["Actual Revenue", "Estimated Revenue", "Number of Opportunities", "Salesperson"] },
     { dataRole: "Axis", Fields: ["Industry", "Opportunity Status", "Lead Rating", "Salesperson"] },
     { dataRole: "Values", Fields: ["Actual Revenue", "Estimated Revenue", "Number of Opportunities", "Salesperson"] },
     { dataRole: "Legend", Fields: ["Industry", "Lead Rating", "Opportunity Status", "Salesperson"] },
