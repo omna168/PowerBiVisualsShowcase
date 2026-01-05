@@ -1,3 +1,114 @@
 .modal.show {
     display: block;
 }
+.visual-creator-modal {
+    height: 80vh;
+    border-radius: 0px;
+    border: none;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+}
+
+.visual-creator-modal .modal-body {
+    padding: 0;
+    overflow: hidden;
+}
+
+.visual-creator-modal .modal-header {
+    padding: 20px 24px;
+}
+
+.visual-creator-modal .modal-footer {
+    padding: 16px 24px;
+    background-color: #fff;
+}
+
+/* Left Panel Styles */
+.visual-creator-modal .col-md-4 {
+    padding: 24px;
+    background-color: #fff;
+}
+
+/* Right Panel Styles */
+.visual-creator-modal .col-md-8 {
+    background-color: #f8f9fa; /* Light gray background */
+    border-left: 1px solid #edebe9;
+}
+
+/* Form Elements */
+.form-label {
+    color: #323130;
+    font-size: 14px;
+}
+
+.form-select {
+    font-size: 14px;
+    border-color: #8a8886;
+    border-radius: 2px;
+}
+
+.form-select:focus {
+    border-color: #0078d4;
+    box-shadow: none;
+}
+
+.form-check-input {
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: #0078d4;
+    border-color: #0078d4;
+}
+
+/* Title Input */
+.input-group-text {
+    background-color: #fff;
+    border-left: none;
+    border-color: #ced4da;
+}
+
+.form-control {
+    border-right: none;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+}
+
+.form-control:focus + .input-group-text {
+    border-color: #ced4da;
+}
+
+/* Alignment Buttons */
+.btn-group .btn {
+    padding: 4px 8px;
+}
+
+.btn-group .btn.active {
+    background-color: #e1dfdd;
+    color: #201f1e;
+}
+
+.btn-group .btn:hover {
+    background-color: #f3f2f1;
+}
+
+/* Scrollbar for left panel */
+.col-md-4::-webkit-scrollbar {
+    width: 6px;
+}
+
+.col-md-4::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+ 
+.col-md-4::-webkit-scrollbar-thumb {
+    background: #c8c6c4; 
+    border-radius: 3px;
+}
+
+.col-md-4::-webkit-scrollbar-thumb:hover {
+    background: #a19f9d; 
+}

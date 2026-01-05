@@ -41,108 +41,128 @@ const VisualCreatorModal = ({ show, onClose, onCreate }) => {
 
     return (
         <div className="modal show d-block" tabIndex="-1" role="dialog" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
-            <div className="modal-dialog modal-lg" role="document">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title">Create Visual</h5>
+            <div className="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div className="modal-content visual-creator-modal">
+                    <div className="modal-header border-0 pb-0">
+                        <h5 className="modal-title fw-bold">Create quick visual</h5>
                         <button type="button" className="btn-close" onClick={onClose}></button>
                     </div>
                     <div className="modal-body">
-                        <div className="mb-3">
-                            <label className="form-label">Choose the visual type</label>
-                            <select 
-                                className="form-select" 
-                                value={selectedVisualType} 
-                                onChange={(e) => setSelectedVisualType(e.target.value)}
-                            >
-                                {visualTypeToDataRoles.map(v => (
-                                    <option key={v.name} value={v.name}>{v.displayName}</option>
-                                ))}
-                            </select>
-                        </div>
+                        <div className="row h-100">
+                            {/* Left Panel - Controls */}
+                            <div className="col-md-4 border-end pe-4 overflow-auto" style={{ maxHeight: '70vh' }}>
+                                <div className="mb-4">
+                                    <label className="form-label fw-bold small">Choose the visual type</label>
+                                    <select 
+                                        className="form-select" 
+                                        value={selectedVisualType} 
+                                        onChange={(e) => setSelectedVisualType(e.target.value)}
+                                    >
+                                        {visualTypeToDataRoles.map(v => (
+                                            <option key={v.name} value={v.name}>{v.displayName}</option>
+                                        ))}
+                                    </select>
+                                </div>
 
-                        <h6 className="mt-4 mb-3">Set your fields</h6>
-                        <div className="row">
-                            {currentVisualConfig.dataRoles.map(role => {
-                                const availableFields = dataRolesToFields.find(r => r.dataRole === role)?.Fields || [];
-                                return (
-                                    <div className="col-md-12 mb-3" key={role}>
-                                        <div className="d-flex align-items-center">
-                                            <label className="form-label me-3" style={{minWidth: '80px'}}>{role}</label>
-                                            <select 
-                                                className="form-select"
-                                                value={selectedFields[role] || ''}
-                                                onChange={(e) => handleFieldChange(role, e.target.value)}
-                                            >
-                                                <option value="">Select {role}</option>
-                                                {availableFields.map(field => (
-                                                    <option key={field} value={field}>{field}</option>
-                                                ))}
-                                            </select>
+                                <div className="mb-4">
+                                    <label className="form-label fw-bold small mb-3">Set your fields</label>
+                                    {currentVisualConfig.dataRoles.map(role => {
+                                        const availableFields = dataRolesToFields.find(r => r.dataRole === role)?.Fields || [];
+                                        return (
+                                            <div className="mb-2 row align-items-center" key={role}>
+                                                <label className="col-sm-4 col-form-label text-muted small">{role}</label>
+                                                <div className="col-sm-8">
+                                                    <select 
+                                                        className="form-select form-select-sm"
+                                                        value={selectedFields[role] || ''}
+                                                        onChange={(e) => handleFieldChange(role, e.target.value)}
+                                                    >
+                                                        <option value="">Select an option</option>
+                                                        {availableFields.map(field => (
+                                                            <option key={field} value={field}>{field}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="form-label fw-bold small mb-3">Format your visual</label>
+                                    
+                                    {/* Toggles */}
+                                    {['Legend', 'Category', 'Value', 'Title'].map(item => (
+                                        <div className="d-flex justify-content-between align-items-center mb-2" key={item}>
+                                            <label className="form-check-label text-muted small">{item}</label>
+                                            <div className="form-check form-switch">
+                                                <input 
+                                                    className="form-check-input" 
+                                                    type="checkbox" 
+                                                    checked={formatting[item.toLowerCase()]}
+                                                    onChange={(e) => handleFormatChange(item.toLowerCase(), e.target.checked)}
+                                                    style={{cursor: 'pointer'}}
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
+                                    ))}
 
-                        <h6 className="text-muted mt-4 mb-3" style={{color: '#a19f9d'}}>Format your visual</h6>
-                        
-                        {/* Toggles */}
-                        {['Legend', 'Category', 'Value', 'Title'].map(item => (
-                            <div className="d-flex justify-content-between align-items-center mb-3" key={item}>
-                                <label className="form-check-label" style={{color: '#605e5c'}}>{item}</label>
-                                <div className="form-check form-switch">
-                                    <input 
-                                        className="form-check-input" 
-                                        type="checkbox" 
-                                        checked={formatting[item.toLowerCase()]}
-                                        onChange={(e) => handleFormatChange(item.toLowerCase(), e.target.checked)}
-                                        style={{cursor: 'pointer'}}
-                                    />
+                                    {/* Title Input */}
+                                    {formatting.title && (
+                                        <div className="mt-3">
+                                            <div className="input-group mb-3">
+                                                <input 
+                                                    type="text" 
+                                                    className="form-control" 
+                                                    placeholder="Type your personalized title"
+                                                    value={formatting.customTitle}
+                                                    onChange={(e) => handleFormatChange('customTitle', e.target.value)}
+                                                />
+                                                <span className="input-group-text bg-white border-start-0">
+                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M8 1L10 6L15 8L10 10L8 15L6 10L1 8L6 6L8 1Z" fill="#C8C8C8"/>
+                                                    </svg>
+                                                </span>
+                                            </div>
+
+                                            <div className="d-flex align-items-center justify-content-between">
+                                                <label className="text-muted small">Title alignment</label>
+                                                <div className="btn-group" role="group">
+                                                    {['left', 'center', 'right'].map(align => (
+                                                        <button 
+                                                            key={align}
+                                                            type="button" 
+                                                            className={`btn btn-sm btn-outline-secondary border-0 ${formatting.titleAlignment === align ? 'active' : ''}`}
+                                                            onClick={() => handleFormatChange('titleAlignment', align)}
+                                                        >
+                                                            {align === 'left' && <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2H15V3H1V2ZM1 6H10V7H1V6ZM1 10H15V11H1V10ZM1 14H10V15H1V14Z"/></svg>}
+                                                            {align === 'center' && <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2H15V3H1V2ZM3 6H13V7H3V6ZM1 10H15V11H1V10ZM3 14H13V15H3V14Z"/></svg>}
+                                                            {align === 'right' && <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2H15V3H1V2ZM6 6H15V7H6V6ZM1 10H15V11H1V10ZM6 14H15V15H6V14Z"/></svg>}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                        ))}
 
-                        {/* Title Input */}
-                        <div className="mb-3">
-                            <div className="input-group">
-                                <input 
-                                    type="text" 
-                                    className="form-control" 
-                                    placeholder="Type your personalized title"
-                                    value={formatting.customTitle}
-                                    onChange={(e) => handleFormatChange('customTitle', e.target.value)}
-                                />
-                                <span className="input-group-text bg-white">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                                </span>
+                            {/* Right Panel - Preview */}
+                            <div className="col-md-8 bg-light d-flex align-items-center justify-content-center rounded-3 p-4">
+                                <div className="text-center text-muted">
+                                    <div className="mb-3">
+                                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M12 20h9"></path>
+                                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                        </svg>
+                                    </div>
+                                    <p>Your visual preview will appear here</p>
+                                </div>
                             </div>
                         </div>
-
-                        {/* Title Alignment */}
-                        <div className="d-flex justify-content-between align-items-center mb-3">
-                            <label className="form-check-label" style={{color: '#605e5c'}}>Title alignment</label>
-                            <div className="btn-group" role="group">
-                                {['left', 'center', 'right'].map(align => (
-                                    <button 
-                                        key={align}
-                                        type="button" 
-                                        className={`btn btn-sm ${formatting.titleAlignment === align ? '' : ''}`}
-                                        onClick={() => handleFormatChange('titleAlignment', align)}
-                                        style={{border: 'none', background: 'transparent', color: formatting.titleAlignment === align ? '#0078d4' : '#a19f9d'}}
-                                    >
-                                        {align === 'left' && <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18v2H3V6zm0 5h12v2H3v-2zm0 5h18v2H3v-2z"/></svg>}
-                                        {align === 'center' && <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18v2H3V6zm4 5h10v2H7v-2zm-4 5h18v2H3v-2z"/></svg>}
-                                        {align === 'right' && <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18v2H3V6zm6 5h12v2H9v-2zm-6 5h18v2H3v-2z"/></svg>}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
                     </div>
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-secondary" onClick={onClose}>Close</button>
-                        <button type="button" className="btn btn-primary" onClick={handleCreate}>Create</button>
+                    <div className="modal-footer border-0">
+                        <button type="button" className="btn btn-primary px-4" onClick={handleCreate}>Create</button>
                     </div>
                 </div>
             </div>
