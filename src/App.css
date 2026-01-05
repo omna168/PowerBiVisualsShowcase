@@ -79,6 +79,27 @@ body::-webkit-scrollbar-thumb {
     margin-top: 44px;
 }
 
+body.dark .dropdown {
+    background: #3B3A39;
+}
+
+/* Set the background 40% black when dropdown opens */
+.dropdown.show:after {
+    opacity: 1;
+    position: fixed;
+    visibility: visible;
+}
+
+.dropdown:after {
+    background: rgba(0, 0, 0, .4);
+    bottom: 0;
+    content: '';
+    left: 0;
+    right: 0;
+    top: 0;
+    transition: opacity .15s ease-in-out;
+}
+
 .dropdown-menu {
     position: absolute;
     top: 100%;
@@ -102,17 +123,36 @@ body::-webkit-scrollbar-thumb {
 
 /* Theme Dropdown Styles */
 .theme-container {
-    width: 320px;
-    padding: 0;
-    border: none;
-    box-shadow: 0 0 2px rgba(0,0,0,0.2);
+    background: #FFF;
+    border: 1px solid #FFF;
+    border-radius: 4px;
+    box-shadow: 0 6.4px 14.4px rgba(0, 0, 0, 0.132), 0 1.2px 3.6px rgba(0, 0, 0, 0.108);
+    box-sizing: border-box;
+    height: auto;
+    margin: 10px 0 0 0;
+    padding: 16px;
+    width: 336px;
+}
+
+body.dark .theme-container {
+    background: #3B3A39;
+    border: 1px solid #69797E;
 }
 
 .theme-element-container {
-    display: flex;
     align-items: center;
-    padding: 10px 16px;
+    box-sizing: border-box;
+    display: flex;
+    height: 36px;
+    padding: 0;
+    position: relative;
     cursor: pointer;
+}
+
+.theme-element-container input {
+    cursor: pointer;
+    opacity: 1;
+    position: relative;
 }
 
 .theme-element-container:hover {
@@ -120,45 +160,57 @@ body::-webkit-scrollbar-thumb {
 }
 
 .theme-switch-label {
-    flex-grow: 1;
-    font-size: 14px;
     color: #323130;
+    font: 14px/20px "Segoe UI SemiBold", "Segoe UI", Tahoma, Arial, Helvetica;
+    margin-left: 6px;
+    flex-grow: 1;
 }
 
-/* Toggle Switch */
+/* Toggle Switch - Box around the slider checkbox */
 .switch {
-    position: relative;
+    border: none;
+    border-radius: 10px;
+    box-sizing: border-box;
     display: inline-block;
-    width: 40px;
     height: 20px;
+    margin: auto 0;
+    margin-left: auto;
+    position: relative;
+    width: 40px;
+    background: transparent;
 }
 
+/* Hide default HTML checkbox */
 .switch input {
-    opacity: 0;
-    width: 0;
     height: 0;
+    width: 0;
+    opacity: 0;
+    position: absolute;
 }
 
+/* The toggle slider for the theme selection */
 .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
+    background-color: #c8c8c8;
     bottom: 0;
-    background-color: #ccc;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
     transition: .4s;
+    -webkit-transition: .4s;
 }
 
 .slider:before {
-    position: absolute;
+    background-color: #fff;
+    bottom: 2px;
     content: "";
     height: 16px;
-    width: 16px;
     left: 2px;
-    bottom: 2px;
-    background-color: white;
+    position: absolute;
     transition: .4s;
+    width: 16px;
+    -webkit-transition: .4s;
 }
 
 input:checked + .slider {
@@ -170,9 +222,12 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
+    -webkit-transform: translateX(20px);
+    -ms-transform: translateX(20px);
     transform: translateX(20px);
 }
 
+/* Rounded toggle slider for the theme selection */
 .slider.round {
     border-radius: 20px;
 }
@@ -183,26 +238,41 @@ input:checked + .slider:before {
 
 /* Dropdown Separator */
 .dropdown-separator {
-    height: 1px;
-    background-color: #edebe9;
-    margin: 4px 0;
+    border-top: 0.5px solid rgba(0, 0, 0, 0.2);
+    margin: 16px 0;
+    opacity: 0.7;
+}
+
+body.dark .dropdown-separator {
+    border-top: 0.5px solid #69797E;
 }
 
 /* Data Colors */
 .data-color-name {
-    flex-grow: 1;
-    font-size: 14px;
     color: #323130;
+    cursor: pointer;
+    font: 14px/20px "Segoe UI", Tahoma, Arial, Helvetica;
+    margin-left: 8px;
+    flex-grow: 1;
+}
+
+body.dark .data-color-name {
+    color: #FFF;
 }
 
 .theme-colors {
-    display: flex;
+    border: 1px solid #717171;
+    cursor: pointer;
+    display: inline-flex;
+    height: 22px;
+    line-height: 0;
+    margin-left: auto;
 }
 
 .data-color {
-    width: 12px;
-    height: 12px;
-    margin-left: 2px;
+    display: inline-block;
+    height: 20px;
+    width: 20px;
 }
 
 /* Dark Mode Styles */
@@ -250,8 +320,7 @@ body.dark .theme-element-container:hover {
     background-color: #484644;
 }
 
-body.dark .theme-switch-label,
-body.dark .data-color-name {
+body.dark .theme-switch-label {
     color: #ffffff;
 }
 
@@ -300,9 +369,8 @@ body.dark .header-separator {
     z-index: 0;
 }
 
-.theme-container {
-    width: 300px;
-    padding: 10px;
+body.dark .horizontal-rule {
+    border-top: .5px solid #605E5C;
 }
 
 .theme-container li {
@@ -328,17 +396,6 @@ body.dark .header-separator {
     margin-right: 10px;
 }
 
-.data-color {
-    width: 12px;
-    height: 12px;
-    margin-right: 2px;
-    border-radius: 50%;
-}
-
-.data-color-name {
-    font-size: 14px;
-    color: #333;
-}
 
 .btn-theme {
     background: #FAF9F8;
@@ -349,12 +406,35 @@ body.dark .header-separator {
     align-items: center;
     height: 32px;
     padding: 0 12px;
+    margin: 16px;
     cursor: pointer;
     font-size: 14px;
 }
 
+body.dark .btn-theme {
+    background: #3B3A39;
+    border: 1px solid #D9E6EA;
+    color: #D9E6EA;
+}
+
 .btn-theme:hover {
     background: #FFF;
+    color: #4A565A;
+}
+
+body.dark .btn-theme:hover {
+    background: #393939;
+    color: #D9E6EA;
+}
+
+.btn-theme[aria-expanded="true"] {
+    background: #D3D6D7;
+    color: #4A565A;
+}
+
+body.dark .btn-theme[aria-expanded="true"] {
+    background: #393939;
+    color: #D9E6EA;
 }
 
 .theme-selector-label {
@@ -371,6 +451,10 @@ body.dark .header-separator {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
+}
+
+body.dark .content {
+    background: #3B3A39;
 }
 
 .report-container {

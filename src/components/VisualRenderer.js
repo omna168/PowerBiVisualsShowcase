@@ -270,134 +270,151 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode }) => {
                         <div className="d-flex justify-content-center w-100 mb-2" style={{fontSize: '10px', color: axisColor}}>
                             <div className="d-flex align-items-center me-3">
                                 <div style={{width: '8px', height: '8px', backgroundColor: colors[0], borderRadius: '50%', marginRight: '4px'}}></div>
-                                <span>Series 1</span>
+                                <span>{visual.fields?.Series || 'Series 1'}</span>
                             </div>
                             <div className="d-flex align-items-center">
                                 <div style={{width: '8px', height: '8px', backgroundColor: colors[1], borderRadius: '50%', marginRight: '4px'}}></div>
-                                <span>Series 2</span>
+                                <span>{visual.fields?.Series ? 'Series 2' : 'Series 2'}</span>
                             </div>
                         </div>
                     )}
 
-                    {(visual.type === "Column Chart" || visual.type === "columnChart") && (
-                        <div className="chart-container">
-                            <div className="d-flex flex-row h-100">
-                                <div className="y-axis" style={{color: axisColor}}><span>100</span><span>50</span><span>0</span></div>
-                                <div className="plot-area">
-                                    {[60, 80, 45, 90, 30].map((h, i) => (
-                                        <div key={i} className="column-bar-group" style={{width: '15%'}}>
-                                            {visual.formatting?.value && <span className="data-label" style={{marginBottom: '2px', color: textColor}}>{h}</span>}
-                                            <div className="column-bar" style={{height: `${h}%`, backgroundColor: colors[0]}}></div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                            {visual.formatting?.category !== false && (
-                                <div className="x-axis" style={{color: axisColor}}><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span></div>
-                            )}
-                        </div>
-                    )}
-                    {(visual.type === "Bar Chart" || visual.type === "barChart") && (
-                        <div className="bar-chart-container">
-                            <div className="d-flex flex-row w-100 h-100">
-                                {visual.formatting?.category !== false && (
-                                    <div className="bar-y-axis" style={{color: axisColor}}><span>Cat A</span><span>Cat B</span><span>Cat C</span></div>
-                                )}
-                                <div className="bar-plot-area">
-                                    {[
-                                        {w: 70, c: colors[0]}, 
-                                        {w: 40, c: colors[0]}, 
-                                        {w: 90, c: colors[0]}
-                                    ].map((d, i) => (
-                                        <div key={i} className="d-flex align-items-center" style={{width: '100%', marginBottom: '10px'}}>
-                                            <div className="bar-horizontal" style={{width: `${d.w}%`, backgroundColor: d.c, justifyContent: 'center'}}>
-                                                {visual.formatting?.value && <span style={{color: 'white', fontSize: '9px'}}>{d.w}</span>}
+                    {(() => {
+                        // Helper to generate deterministic mock data based on fields
+                        const getMockData = (count) => {
+                            const seedStr = (visual.fields?.Category || '') + (visual.fields?.Y || '') + (visual.fields?.Series || '') + (visual.title || '');
+                            const seed = seedStr.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                            return Array.from({ length: count }, (_, i) => {
+                                const x = Math.sin(seed + i * 123) * 10000;
+                                return Math.floor((x - Math.floor(x)) * 70) + 20; // 20-90
+                            });
+                        };
+                        
+                        const catLabel = visual.fields?.Category ? visual.fields.Category.substring(0, 3) : 'Cat';
+                        const data5 = getMockData(5);
+                        const data3 = getMockData(3);
+
+                        return (
+                            <>
+                                {(visual.type === "Column Chart" || visual.type === "columnChart") && (
+                                    <div className="chart-container" style={{flex: 1, minHeight: 0}}>
+                                        <div className="d-flex flex-row" style={{flex: 1, minHeight: 0}}>
+                                            <div className="y-axis" style={{color: axisColor}}><span>100</span><span>50</span><span>0</span></div>
+                                            <div className="plot-area">
+                                                {data5.map((h, i) => (
+                                                    <div key={i} className="column-bar-group" style={{width: '15%'}}>
+                                                        {visual.formatting?.value && <span className="data-label" style={{marginBottom: '2px', color: textColor}}>{h}</span>}
+                                                        <div className="column-bar" style={{height: `${h}%`, backgroundColor: colors[0]}}></div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    {(visual.type === "Pie Chart" || visual.type === "pieChart") && (
-                        <div className="pie-container" style={{flexDirection: 'column'}}>
-                            <div className="pie-placeholder" style={{
-                                width: '120px', height: '120px',
-                                background: `conic-gradient(${colors[0]} 0% 33%, ${colors[1]} 33% 66%, ${colors[2]} 66% 100%)`,
-                                position: 'relative'
-                            }}>
-                                {visual.formatting?.value && (
-                                    <>
-                                        <span style={{position: 'absolute', top: '20%', right: '20%', color: 'white', fontSize: '10px'}}>33%</span>
-                                        <span style={{position: 'absolute', bottom: '10%', left: '40%', color: 'white', fontSize: '10px'}}>34%</span>
-                                        <span style={{position: 'absolute', top: '20%', left: '20%', color: 'white', fontSize: '10px'}}>33%</span>
-                                    </>
+                                        {visual.formatting?.category !== false && (
+                                            <div className="x-axis" style={{color: axisColor}}>
+                                                {data5.map((_, i) => <span key={i}>{catLabel} {i+1}</span>)}
+                                            </div>
+                                        )}
+                                    </div>
                                 )}
-                            </div>
-                        </div>
-                    )}
-                    {(visual.type === "Line Chart" || visual.type === "lineChart") && (
-                        <div className="chart-container">
-                            <div className="plot-area" style={{alignItems: 'stretch'}}>
-                                <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" style={{overflow: 'visible'}}>
-                                    <path d="M0 80 L25 40 L50 60 L75 20 L100 50" fill="none" stroke={colors[0]} strokeWidth="2" />
-                                    {[
-                                        {x: 0, y: 80, v: 20}, {x: 25, y: 40, v: 60}, {x: 50, y: 60, v: 40}, 
-                                        {x: 75, y: 20, v: 80}, {x: 100, y: 50, v: 50}
-                                    ].map((p, i) => (
-                                        <g key={i}>
-                                            <circle cx={p.x} cy={p.y} r="2" fill={colors[0]} />
-                                            {visual.formatting?.value && (
-                                                <text x={p.x} y={p.y - 5} textAnchor="middle" fontSize="8" fill={textColor}>{p.v}</text>
+                                {(visual.type === "Bar Chart" || visual.type === "barChart") && (
+                                    <div className="bar-chart-container" style={{flex: 1, minHeight: 0}}>
+                                        <div className="d-flex flex-row w-100 h-100">
+                                            {visual.formatting?.category !== false && (
+                                                <div className="bar-y-axis" style={{color: axisColor}}>
+                                                    {data3.map((_, i) => <span key={i}>{catLabel} {i+1}</span>)}
+                                                </div>
                                             )}
-                                        </g>
-                                    ))}
-                                </svg>
-                            </div>
-                            {visual.formatting?.category !== false && (
-                                <div className="x-axis" style={{color: axisColor}}><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span></div>
-                            )}
-                        </div>
-                    )}
-                    {(visual.type === "Area Chart" || visual.type === "areaChart") && (
-                        <div className="chart-container">
-                            <div className="d-flex flex-row h-100">
-                                <div className="y-axis" style={{justifyContent: 'space-between', height: '100%', paddingBottom: '20px', color: axisColor}}>
-                                    <span>100</span><span>50</span><span>0</span>
-                                </div>
-                                <div className="plot-area" style={{alignItems: 'stretch', position: 'relative', flex: 1}}>
-                                    <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none" style={{overflow: 'visible'}}>
-                                        <defs>
-                                            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="0%" stopColor={colors[0]} stopOpacity="0.5"/>
-                                                <stop offset="100%" stopColor={colors[0]} stopOpacity="0.1"/>
-                                            </linearGradient>
-                                        </defs>
-                                        <path d="M0 200 L0 120 L80 80 L160 140 L240 60 L320 100 L400 40 V 200 Z" fill="url(#areaGradient)" />
-                                        <path d="M0 120 L80 80 L160 140 L240 60 L320 100 L400 40" fill="none" stroke={colors[0]} strokeWidth="3" />
-                                        
-                                        {/* Data Points */}
-                                        {[
-                                            {x: 0, y: 120, v: 40}, {x: 80, y: 80, v: 60}, {x: 160, y: 140, v: 30}, 
-                                            {x: 240, y: 60, v: 70}, {x: 320, y: 100, v: 50}, {x: 400, y: 40, v: 80}
-                                        ].map((p, i) => (
-                                            <g key={i}>
-                                                <circle cx={p.x} cy={p.y} r="4" fill={colors[0]} stroke="white" strokeWidth="2" />
-                                                {visual.formatting?.value && (
-                                                    <text x={p.x} y={p.y - 10} textAnchor="middle" fontSize="10" fill={textColor}>{p.v}</text>
-                                                )}
-                                            </g>
-                                        ))}
-                                    </svg>
-                                </div>
-                            </div>
-                            {visual.formatting?.category !== false && (
-                                <div className="x-axis" style={{marginTop: '10px', color: axisColor}}>
-                                    <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                                            <div className="bar-plot-area">
+                                                {data3.map((w, i) => (
+                                                    <div key={i} className="d-flex align-items-center" style={{width: '100%', marginBottom: '10px'}}>
+                                                        <div className="bar-horizontal" style={{width: `${w}%`, backgroundColor: colors[0], justifyContent: 'center'}}>
+                                                            {visual.formatting?.value && <span style={{color: 'white', fontSize: '9px'}}>{w}</span>}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                {(visual.type === "Pie Chart" || visual.type === "pieChart") && (
+                                    <div className="pie-container" style={{flexDirection: 'column', flex: 1, minHeight: 0}}>
+                                        <div className="pie-placeholder" style={{
+                                            width: '120px', height: '120px',
+                                            background: `conic-gradient(${colors[0]} 0% ${data3[0]}%, ${colors[1]} ${data3[0]}% ${data3[0]+data3[1]}%, ${colors[2]} ${data3[0]+data3[1]}% 100%)`,
+                                            position: 'relative'
+                                        }}>
+                                            {visual.formatting?.value && (
+                                                <>
+                                                    <span style={{position: 'absolute', top: '20%', right: '20%', color: 'white', fontSize: '10px'}}>{data3[0]}%</span>
+                                                    <span style={{position: 'absolute', bottom: '10%', left: '40%', color: 'white', fontSize: '10px'}}>{data3[1]}%</span>
+                                                    <span style={{position: 'absolute', top: '20%', left: '20%', color: 'white', fontSize: '10px'}}>{100 - data3[0] - data3[1]}%</span>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                                {(visual.type === "Line Chart" || visual.type === "lineChart") && (
+                                    <div className="chart-container" style={{flex: 1, minHeight: 0}}>
+                                        <div className="plot-area" style={{alignItems: 'stretch', flex: 1}}>
+                                            <svg width="100%" height="100%" viewBox="0 0 500 300" preserveAspectRatio="none" style={{overflow: 'visible'}}>
+                                                <path d={`M0 ${300 - data5[0]*3} L125 ${300 - data5[1]*3} L250 ${300 - data5[2]*3} L375 ${300 - data5[3]*3} L500 ${300 - data5[4]*3}`} fill="none" stroke={colors[0]} strokeWidth="3" />
+                                                {data5.map((v, i) => (
+                                                    <g key={i}>
+                                                        <circle cx={i * 125} cy={300 - v*3} r="4" fill={colors[0]} />
+                                                        {visual.formatting?.value && (
+                                                            <text x={i * 125} y={300 - v*3 - 10} textAnchor="middle" fontSize="12" fill={textColor}>{v}</text>
+                                                        )}
+                                                    </g>
+                                                ))}
+                                            </svg>
+                                        </div>
+                                        {visual.formatting?.category !== false && (
+                                            <div className="x-axis" style={{color: axisColor, justifyContent: 'space-between'}}>
+                                                {data5.map((_, i) => <span key={i}>{catLabel} {i+1}</span>)}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                {(visual.type === "Area Chart" || visual.type === "areaChart") && (
+                                    <div className="chart-container" style={{flex: 1, minHeight: 0}}>
+                                        <div className="d-flex flex-row" style={{flex: 1, minHeight: 0}}>
+                                            <div className="y-axis" style={{justifyContent: 'space-between', height: '100%', paddingBottom: '20px', color: axisColor}}>
+                                                <span>100</span><span>50</span><span>0</span>
+                                            </div>
+                                            <div className="plot-area" style={{alignItems: 'stretch', position: 'relative', flex: 1}}>
+                                                <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none" style={{overflow: 'visible'}}>
+                                                    <defs>
+                                                        <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="0%" stopColor={colors[0]} stopOpacity="0.5"/>
+                                                            <stop offset="100%" stopColor={colors[0]} stopOpacity="0.1"/>
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <path d={`M0 200 L0 ${200 - data5[0]*2} L80 ${200 - data5[1]*2} L160 ${200 - data5[2]*2} L240 ${200 - data5[3]*2} L320 ${200 - data5[4]*2} L400 ${200 - data5[0]*2} V 200 Z`} fill="url(#areaGradient)" />
+                                                    <path d={`M0 ${200 - data5[0]*2} L80 ${200 - data5[1]*2} L160 ${200 - data5[2]*2} L240 ${200 - data5[3]*2} L320 ${200 - data5[4]*2} L400 ${200 - data5[0]*2}`} fill="none" stroke={colors[0]} strokeWidth="3" />
+                                                    
+                                                    {data5.map((v, i) => (
+                                                        <g key={i}>
+                                                            <circle cx={i * 80} cy={200 - v*2} r="4" fill={colors[0]} stroke="white" strokeWidth="2" />
+                                                            {visual.formatting?.value && (
+                                                                <text x={i * 80} y={200 - v*2 - 10} textAnchor="middle" fontSize="10" fill={textColor}>{v}</text>
+                                                            )}
+                                                        </g>
+                                                    ))}
+                                                    {/* Add last point manually for 6 points if needed, reusing first data point for simplicity or generating 6 */}
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        {visual.formatting?.category !== false && (
+                                            <div className="x-axis" style={{marginTop: '10px', color: axisColor}}>
+                                                {data5.map((_, i) => <span key={i}>{catLabel} {i+1}</span>)}
+                                                <span>{catLabel} 6</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </>
+                        );
+                    })()}
                     {!["Column Chart", "Bar Chart", "Pie Chart", "Line Chart", "Area Chart", "columnChart", "barChart", "pieChart", "lineChart", "areaChart"].includes(visual.type) && (
                         <div style={{color: axisColor, fontSize: '12px'}}>Visual type not supported in mock mode: {visual.type}</div>
                     )}

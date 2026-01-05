@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { visualTypeToDataRoles, dataRolesToFields } from '../utils/constants';
+import VisualRenderer from './VisualRenderer';
 import './VisualCreatorModal.css';
 
 const VisualCreatorModal = ({ show, onClose, onCreate }) => {
@@ -32,8 +33,7 @@ const VisualCreatorModal = ({ show, onClose, onCreate }) => {
         setFormatting(prev => ({ ...prev, [key]: value }));
     };
 
-    const handleCreate = () => {
-        // Map selectedFields (display names) to internal names
+    const getMappedFields = () => {
         const mappedFields = {};
         Object.keys(selectedFields).forEach(displayRole => {
             const roleIndex = currentVisualConfig.dataRoles.indexOf(displayRole);
@@ -42,10 +42,25 @@ const VisualCreatorModal = ({ show, onClose, onCreate }) => {
                 mappedFields[internalRole] = selectedFields[displayRole];
             }
         });
+        return mappedFields;
+    };
+
+    const handleCreate = () => {
+        // Map selectedFields (display names) to internal names
+        const mappedFields = getMappedFields();
 
         onCreate(selectedVisualType, mappedFields, formatting);
         onClose();
     };
+
+    const previewVisual = {
+        type: selectedVisualType,
+        title: formatting.customTitle || currentVisualConfig.displayName,
+        fields: getMappedFields(),
+        formatting: formatting
+    };
+
+    const hasSelectedFields = Object.values(selectedFields).some(val => val && val !== '');
 
     if (!show) return null;
 
@@ -60,7 +75,7 @@ const VisualCreatorModal = ({ show, onClose, onCreate }) => {
                     <div className="modal-body">
                         <div className="row h-100">
                             {/* Left Panel - Controls */}
-                            <div className="col-md-4 border-end pe-4 overflow-auto" style={{ maxHeight: '70vh' }}>
+                            <div className="col-md-4 border-end pe-4 overflow-auto h-100">
                                 <div className="mb-4">
                                     <label className="form-label fw-bold small">Choose the visual type</label>
                                     <select 
@@ -158,16 +173,29 @@ const VisualCreatorModal = ({ show, onClose, onCreate }) => {
                             </div>
 
                             {/* Right Panel - Preview */}
-                            <div className="col-md-8 bg-light d-flex align-items-center justify-content-center rounded-3 p-4">
-                                <div className="text-center text-muted">
-                                    <div className="mb-3">
-                                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M12 20h9"></path>
-                                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                                        </svg>
+                            <div className={`col-md-8 bg-light d-flex ${hasSelectedFields ? '' : 'align-items-center justify-content-center'} rounded-3 p-4`}>
+                                {hasSelectedFields ? (
+                                    <div style={{ width: '100%', height: '100%', backgroundColor: 'white', padding: '20px', borderRadius: '4px', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                                        {formatting.title && (
+                                            <div style={{ marginBottom: '10px', fontWeight: 'bold', fontSize: '16px', textAlign: formatting.titleAlignment, color: '#333' }}>
+                                                {previewVisual.title}
+                                            </div>
+                                        )}
+                                        <div style={{ flex: 1, position: 'relative', minHeight: '0' }}>
+                                            <VisualRenderer visual={previewVisual} />
+                                        </div>
                                     </div>
-                                    <p>Your visual preview will appear here</p>
-                                </div>
+                                ) : (
+                                    <div className="text-center text-muted">
+                                        <div className="mb-3">
+                                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M12 20h9"></path>
+                                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                            </svg>
+                                        </div>
+                                        <p>Your visual preview will appear here</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
