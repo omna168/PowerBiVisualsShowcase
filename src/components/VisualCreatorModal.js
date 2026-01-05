@@ -182,7 +182,7 @@ const VisualCreatorModal = ({ show, onClose, onCreate }) => {
                                             </div>
                                         )}
                                         <div style={{ flex: 1, position: 'relative', minHeight: '0' }}>
-                                            <VisualRenderer visual={previewVisual} />
+                                            <VisualRenderer visual={previewVisual} isPreview={true} />
                                         </div>
                                     </div>
                                 ) : (

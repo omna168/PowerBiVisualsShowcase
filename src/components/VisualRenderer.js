@@ -1,6 +1,6 @@
 import React from 'react';
 
-const VisualRenderer = ({ visual, isLarge, theme, isDarkMode }) => {
+const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
     const colors = theme ? theme.dataColors : ['#0078D4', '#102576', '#E06C36', '#6B007B', '#E6389F'];
     const textColor = isDarkMode ? '#ffffff' : '#333333';
     const axisColor = isDarkMode ? '#cccccc' : '#666666';
@@ -9,7 +9,7 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode }) => {
     return (
         <>
             {/* 1. Actual Revenue by Industry */}
-            {(visual.title === "Actual Revenue by Industry" || (visual.fields?.Category === 'Industry' && visual.fields?.Y === 'Actual Revenue')) && (
+            {!isPreview && (visual.title === "Actual Revenue by Industry" || (visual.fields?.Category === 'Industry' && visual.fields?.Y === 'Actual Revenue')) && (
                 <div className="chart-container">
                     <div className="d-flex flex-row h-100">
                         <div className="y-axis-label" style={isLarge ? {fontSize: '14px', fontWeight: 'bold', color: textColor} : {color: axisColor}}>
@@ -79,7 +79,7 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode }) => {
             )}
 
             {/* 2. Number of Opportunities by Industry */}
-            {(visual.title === "Number of Opportunities by Industry" || (visual.fields?.Category === 'Industry' && visual.fields?.Y === 'Number of Opportunities')) && (
+            {!isPreview && (visual.title === "Number of Opportunities by Industry" || (visual.fields?.Category === 'Industry' && visual.fields?.Y === 'Number of Opportunities')) && (
                 <div className="chart-container">
                     <div className="d-flex flex-row h-100">
                         <div className="y-axis-label" style={{color: axisColor}}>Number ...</div>
@@ -102,7 +102,7 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode }) => {
             )}
 
             {/* 3. Estimated Revenue by Salesperson */}
-            {visual.title === "Estimated Revenue by Salesperson" && (
+            {!isPreview && visual.title === "Estimated Revenue by Salesperson" && (
                 <div className="bar-chart-container">
                     <div className="d-flex flex-row w-100 h-100">
                         <div className="y-axis-label" style={{color: axisColor}}>Salesperson</div>
@@ -122,7 +122,7 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode }) => {
             )}
 
             {/* 4. Pie Chart */}
-            {visual.title === "Number of Opportunities by Opportunity Status" && (
+            {!isPreview && visual.title === "Number of Opportunities by Opportunity Status" && (
                 <div className="pie-container">
                     <div className="pie-placeholder" style={{
                         background: `conic-gradient(
@@ -141,7 +141,7 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode }) => {
             )}
 
             {/* 5. Line Chart */}
-            {visual.title === "Number of Opportunities by Salesperson" && (
+            {!isPreview && visual.title === "Number of Opportunities by Salesperson" && (
                 <div className="chart-container">
                     <div className="d-flex flex-row h-100">
                         <div className="y-axis-label" style={isLarge ? {fontSize: '14px', fontWeight: 'bold', color: textColor} : {color: axisColor}}>
@@ -234,7 +234,7 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode }) => {
             )}
 
             {/* 6. System Embedded Programming (Column) */}
-            {visual.title === "this is the system embeded programming" && (
+            {!isPreview && visual.title === "this is the system embeded programming" && (
                 <div className="chart-container">
                     <div className="d-flex flex-row h-100">
                         <div className="y-axis-label" style={{color: axisColor}}>Actual R...</div>
@@ -262,7 +262,7 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode }) => {
             )}
 
             {/* Generic Renderer for Newly Created Visuals */}
-            {(visual.title && (visual.title.startsWith("New ") || visual.formatting)) && (
+            {(isPreview || (visual.title && (visual.title.startsWith("New ") || visual.formatting))) && (
                 <div className="chart-container" style={{justifyContent: 'center', alignItems: 'center', display: 'flex', height: '100%', width: '100%', flexDirection: 'column'}}>
                     
                     {/* Legend (Top) */}
