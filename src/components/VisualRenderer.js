@@ -286,49 +286,57 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                             const seed = seedStr.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
                             return Array.from({ length: count }, (_, i) => {
                                 const x = Math.sin(seed + i * 123) * 10000;
-                                return Math.floor((x - Math.floor(x)) * 70) + 20; // 20-90
+                                return Math.floor((x - Math.floor(x)) * 60) + 30; // 30-90 range for better visuals
                             });
                         };
                         
                         const catLabel = visual.fields?.Category ? visual.fields.Category.substring(0, 3) : 'Cat';
-                        const data5 = getMockData(5);
+                        const data8 = getMockData(8); // Increased to 8 points
                         const data3 = getMockData(3);
 
                         return (
                             <>
                                 {(visual.type === "Column Chart" || visual.type === "columnChart") && (
-                                    <div className="chart-container" style={{flex: 1, minHeight: 0}}>
-                                        <div className="d-flex flex-row" style={{flex: 1, minHeight: 0}}>
-                                            <div className="y-axis" style={{color: axisColor}}><span>100</span><span>50</span><span>0</span></div>
-                                            <div className="plot-area">
-                                                {data5.map((h, i) => (
-                                                    <div key={i} className="column-bar-group" style={{width: '15%'}}>
-                                                        {visual.formatting?.value && <span className="data-label" style={{marginBottom: '2px', color: textColor}}>{h}</span>}
-                                                        <div className="column-bar" style={{height: `${h}%`, backgroundColor: colors[0]}}></div>
+                                    <div className="chart-container" style={{flex: 1, minHeight: 0, position: 'relative'}}>
+                                        {visual.formatting?.grid && (
+                                            <div className="grid-lines" style={{position: 'absolute', top: 0, left: '30px', right: 0, bottom: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', pointerEvents: 'none'}}>
+                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                            </div>
+                                        )}
+                                        <div className="d-flex flex-row" style={{flex: 1, minHeight: 0, zIndex: 1}}>
+                                            <div className="y-axis" style={{color: axisColor, fontSize: '10px', paddingRight: '5px'}}><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div>
+                                            <div className="plot-area" style={{gap: '2%'}}>
+                                                {data8.map((h, i) => (
+                                                    <div key={i} className="column-bar-group" style={{width: '10%'}}>
+                                                        {visual.formatting?.value && <span className="data-label" style={{marginBottom: '2px', color: textColor, fontSize: '10px'}}>{h}</span>}
+                                                        <div className="column-bar" style={{height: `${h}%`, backgroundColor: colors[0], borderRadius: '2px 2px 0 0'}}></div>
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
                                         {visual.formatting?.category !== false && (
-                                            <div className="x-axis" style={{color: axisColor}}>
-                                                {data5.map((_, i) => <span key={i}>{catLabel} {i+1}</span>)}
+                                            <div className="x-axis" style={{color: axisColor, paddingLeft: '30px', marginTop: '5px'}}>
+                                                {data8.map((_, i) => <span key={i} style={{fontSize: '10px'}}>{catLabel} {i+1}</span>)}
                                             </div>
                                         )}
                                     </div>
                                 )}
                                 {(visual.type === "Bar Chart" || visual.type === "barChart") && (
-                                    <div className="bar-chart-container" style={{flex: 1, minHeight: 0}}>
+                                    <div className="bar-chart-container" style={{flex: 1, minHeight: 0, overflowY: 'auto'}}>
                                         <div className="d-flex flex-row w-100 h-100">
                                             {visual.formatting?.category !== false && (
-                                                <div className="bar-y-axis" style={{color: axisColor}}>
-                                                    {data3.map((_, i) => <span key={i}>{catLabel} {i+1}</span>)}
+                                                <div className="bar-y-axis" style={{color: axisColor, paddingRight: '10px', justifyContent: 'space-around'}}>
+                                                    {data8.map((_, i) => <span key={i} style={{fontSize: '10px'}}>{catLabel} {i+1}</span>)}
                                                 </div>
                                             )}
-                                            <div className="bar-plot-area">
-                                                {data3.map((w, i) => (
-                                                    <div key={i} className="d-flex align-items-center" style={{width: '100%', marginBottom: '10px'}}>
-                                                        <div className="bar-horizontal" style={{width: `${w}%`, backgroundColor: colors[0], justifyContent: 'center'}}>
-                                                            {visual.formatting?.value && <span style={{color: 'white', fontSize: '9px'}}>{w}</span>}
+                                            <div className="bar-plot-area" style={{justifyContent: 'space-around'}}>
+                                                {data8.map((w, i) => (
+                                                    <div key={i} className="d-flex align-items-center" style={{width: '100%', height: '10%'}}>
+                                                        <div className="bar-horizontal" style={{width: `${w}%`, backgroundColor: colors[0], justifyContent: 'flex-end', paddingRight: '5px', borderRadius: '0 2px 2px 0'}}>
+                                                            {visual.formatting?.value && <span style={{color: 'white', fontSize: '9px', fontWeight: 'bold'}}>{w}</span>}
                                                         </div>
                                                     </div>
                                                 ))}
@@ -338,48 +346,92 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                                 )}
                                 {(visual.type === "Pie Chart" || visual.type === "pieChart") && (
                                     <div className="pie-container" style={{flexDirection: 'column', flex: 1, minHeight: 0}}>
-                                        <div className="pie-placeholder" style={{
-                                            width: '120px', height: '120px',
-                                            background: `conic-gradient(${colors[0]} 0% ${data3[0]}%, ${colors[1]} ${data3[0]}% ${data3[0]+data3[1]}%, ${colors[2]} ${data3[0]+data3[1]}% 100%)`,
-                                            position: 'relative'
-                                        }}>
-                                            {visual.formatting?.value && (
-                                                <>
-                                                    <span style={{position: 'absolute', top: '20%', right: '20%', color: 'white', fontSize: '10px'}}>{data3[0]}%</span>
-                                                    <span style={{position: 'absolute', bottom: '10%', left: '40%', color: 'white', fontSize: '10px'}}>{data3[1]}%</span>
-                                                    <span style={{position: 'absolute', top: '20%', left: '20%', color: 'white', fontSize: '10px'}}>{100 - data3[0] - data3[1]}%</span>
-                                                </>
-                                            )}
-                                        </div>
+                                        {(() => {
+                                            const pieData = data8.slice(0, 4);
+                                            const total = pieData.reduce((a, b) => a + b, 0);
+                                            let currentAngle = 0;
+                                            const gradientParts = pieData.map((val, i) => {
+                                                const percentage = (val / total) * 100;
+                                                const start = currentAngle;
+                                                currentAngle += percentage;
+                                                return `${colors[i % colors.length]} ${start}% ${currentAngle}%`;
+                                            }).join(', ');
+                                            
+                                            return (
+                                                <div className="pie-placeholder" style={{
+                                                    width: '140px', height: '140px',
+                                                    background: `conic-gradient(${gradientParts})`,
+                                                    position: 'relative',
+                                                    borderRadius: '50%',
+                                                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                                                }}>
+                                                    {visual.formatting?.value && (
+                                                        <div style={{position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none'}}>
+                                                            <span style={{backgroundColor: 'rgba(255,255,255,0.7)', padding: '2px 4px', borderRadius: '4px', fontSize: '10px', color: '#333'}}>
+                                                                {Math.round(pieData[0]/total*100)}%
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
                                 )}
                                 {(visual.type === "Line Chart" || visual.type === "lineChart") && (
-                                    <div className="chart-container" style={{flex: 1, minHeight: 0}}>
-                                        <div className="plot-area" style={{alignItems: 'stretch', flex: 1}}>
-                                            <svg width="100%" height="100%" viewBox="0 0 500 300" preserveAspectRatio="none" style={{overflow: 'visible'}}>
-                                                <path d={`M0 ${300 - data5[0]*3} L125 ${300 - data5[1]*3} L250 ${300 - data5[2]*3} L375 ${300 - data5[3]*3} L500 ${300 - data5[4]*3}`} fill="none" stroke={colors[0]} strokeWidth="3" />
-                                                {data5.map((v, i) => (
-                                                    <g key={i}>
-                                                        <circle cx={i * 125} cy={300 - v*3} r="4" fill={colors[0]} />
-                                                        {visual.formatting?.value && (
-                                                            <text x={i * 125} y={300 - v*3 - 10} textAnchor="middle" fontSize="12" fill={textColor}>{v}</text>
-                                                        )}
-                                                    </g>
-                                                ))}
-                                            </svg>
+                                    <div className="chart-container" style={{flex: 1, minHeight: 0, position: 'relative'}}>
+                                        {visual.formatting?.grid && (
+                                            <div className="grid-lines" style={{position: 'absolute', top: 0, left: '30px', right: 0, bottom: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', pointerEvents: 'none', zIndex: 0}}>
+                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                            </div>
+                                        )}
+                                        <div className="d-flex flex-row" style={{flex: 1, minHeight: 0, zIndex: 1}}>
+                                            <div className="y-axis" style={{color: axisColor, fontSize: '10px', paddingRight: '5px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div>
+                                            <div className="plot-area" style={{alignItems: 'stretch', flex: 1}}>
+                                                <svg width="100%" height="100%" viewBox="0 0 500 300" preserveAspectRatio="none" style={{overflow: 'visible'}}>
+                                                    {(() => {
+                                                        const step = 500 / (data8.length - 1);
+                                                        const pathD = data8.map((v, i) => `${i === 0 ? 'M' : 'L'}${i * step} ${300 - v*3}`).join(' ');
+                                                        return (
+                                                            <>
+                                                                <path d={pathD} fill="none" stroke={colors[0]} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                                                {data8.map((v, i) => (
+                                                                    <g key={i}>
+                                                                        <circle cx={i * step} cy={300 - v*3} r="4" fill="white" stroke={colors[0]} strokeWidth="2" />
+                                                                        {visual.formatting?.value && (
+                                                                            <text x={i * step} y={300 - v*3 - 10} textAnchor="middle" fontSize="10" fill={textColor}>{v}</text>
+                                                                        )}
+                                                                    </g>
+                                                                ))}
+                                                            </>
+                                                        );
+                                                    })()}
+                                                </svg>
+                                            </div>
                                         </div>
                                         {visual.formatting?.category !== false && (
-                                            <div className="x-axis" style={{color: axisColor, justifyContent: 'space-between'}}>
-                                                {data5.map((_, i) => <span key={i}>{catLabel} {i+1}</span>)}
+                                            <div className="x-axis" style={{color: axisColor, paddingLeft: '30px', marginTop: '5px', display: 'flex', justifyContent: 'space-between'}}>
+                                                {data8.map((_, i) => <span key={i} style={{fontSize: '10px'}}>{catLabel} {i+1}</span>)}
                                             </div>
                                         )}
                                     </div>
                                 )}
+
                                 {(visual.type === "Area Chart" || visual.type === "areaChart") && (
-                                    <div className="chart-container" style={{flex: 1, minHeight: 0}}>
-                                        <div className="d-flex flex-row" style={{flex: 1, minHeight: 0}}>
-                                            <div className="y-axis" style={{justifyContent: 'space-between', height: '100%', paddingBottom: '20px', color: axisColor}}>
-                                                <span>100</span><span>50</span><span>0</span>
+                                    <div className="chart-container" style={{flex: 1, minHeight: 0, position: 'relative'}}>
+                                        {visual.formatting?.grid && (
+                                            <div className="grid-lines" style={{position: 'absolute', top: 0, left: '30px', right: 0, bottom: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', pointerEvents: 'none', zIndex: 0}}>
+                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                            </div>
+                                        )}
+                                        <div className="d-flex flex-row" style={{flex: 1, minHeight: 0, zIndex: 1}}>
+                                            <div className="y-axis" style={{justifyContent: 'space-between', height: '100%', paddingBottom: '20px', color: axisColor, fontSize: '10px', paddingRight: '5px', display: 'flex', flexDirection: 'column'}}>
+                                                <span>100</span><span>75</span><span>50</span><span>25</span><span>0</span>
                                             </div>
                                             <div className="plot-area" style={{alignItems: 'stretch', position: 'relative', flex: 1}}>
                                                 <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none" style={{overflow: 'visible'}}>
@@ -389,25 +441,32 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                                                             <stop offset="100%" stopColor={colors[0]} stopOpacity="0.1"/>
                                                         </linearGradient>
                                                     </defs>
-                                                    <path d={`M0 200 L0 ${200 - data5[0]*2} L80 ${200 - data5[1]*2} L160 ${200 - data5[2]*2} L240 ${200 - data5[3]*2} L320 ${200 - data5[4]*2} L400 ${200 - data5[0]*2} V 200 Z`} fill="url(#areaGradient)" />
-                                                    <path d={`M0 ${200 - data5[0]*2} L80 ${200 - data5[1]*2} L160 ${200 - data5[2]*2} L240 ${200 - data5[3]*2} L320 ${200 - data5[4]*2} L400 ${200 - data5[0]*2}`} fill="none" stroke={colors[0]} strokeWidth="3" />
-                                                    
-                                                    {data5.map((v, i) => (
-                                                        <g key={i}>
-                                                            <circle cx={i * 80} cy={200 - v*2} r="4" fill={colors[0]} stroke="white" strokeWidth="2" />
-                                                            {visual.formatting?.value && (
-                                                                <text x={i * 80} y={200 - v*2 - 10} textAnchor="middle" fontSize="10" fill={textColor}>{v}</text>
-                                                            )}
-                                                        </g>
-                                                    ))}
-                                                    {/* Add last point manually for 6 points if needed, reusing first data point for simplicity or generating 6 */}
+                                                    {(() => {
+                                                        const step = 400 / (data8.length - 1);
+                                                        const pathPoints = data8.map((v, i) => `${i * step} ${200 - v*2}`).join(' ');
+                                                        
+                                                        return (
+                                                            <>
+                                                                <path d={`M0 200 L${pathPoints} V 200 Z`} fill="url(#areaGradient)" />
+                                                                <path d={`M${pathPoints.replace(/ /g, ',').split(',').map((c, i, arr) => i % 2 === 0 ? 'L' + c : c).join(' ').replace('ML', 'M')}`} fill="none" stroke={colors[0]} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                                                
+                                                                {data8.map((v, i) => (
+                                                                    <g key={i}>
+                                                                        <circle cx={i * step} cy={200 - v*2} r="4" fill={colors[0]} stroke="white" strokeWidth="2" />
+                                                                        {visual.formatting?.value && (
+                                                                            <text x={i * step} y={200 - v*2 - 10} textAnchor="middle" fontSize="10" fill={textColor}>{v}</text>
+                                                                        )}
+                                                                    </g>
+                                                                ))}
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </svg>
                                             </div>
                                         </div>
                                         {visual.formatting?.category !== false && (
-                                            <div className="x-axis" style={{marginTop: '10px', color: axisColor}}>
-                                                {data5.map((_, i) => <span key={i}>{catLabel} {i+1}</span>)}
-                                                <span>{catLabel} 6</span>
+                                            <div className="x-axis" style={{color: axisColor, paddingLeft: '30px', marginTop: '5px', display: 'flex', justifyContent: 'space-between'}}>
+                                                {data8.map((_, i) => <span key={i} style={{fontSize: '10px'}}>{catLabel} {i+1}</span>)}
                                             </div>
                                         )}
                                     </div>

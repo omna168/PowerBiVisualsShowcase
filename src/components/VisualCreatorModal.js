@@ -14,6 +14,7 @@ const VisualCreatorModal = ({ show, onClose, onCreate }) => {
         customTitle: '',
         titleAlignment: 'left'
     });
+    const [zoomLevel, setZoomLevel] = useState(100);
 
     const currentVisualConfig = visualTypeToDataRoles.find(v => v.name === selectedVisualType);
 
@@ -173,18 +174,63 @@ const VisualCreatorModal = ({ show, onClose, onCreate }) => {
                             </div>
 
                             {/* Right Panel - Preview */}
-                            <div className={`col-md-8 bg-light d-flex ${hasSelectedFields ? '' : 'align-items-center justify-content-center'} rounded-3 p-4`}>
+                            <div className={`col-md-8 bg-light d-flex flex-column ${hasSelectedFields ? '' : 'align-items-center justify-content-center'} rounded-3 p-4`}>
                                 {hasSelectedFields ? (
-                                    <div style={{ width: '100%', height: '100%', backgroundColor: 'white', padding: '20px', borderRadius: '4px', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                                        {formatting.title && (
-                                            <div style={{ marginBottom: '10px', fontWeight: 'bold', fontSize: '16px', textAlign: formatting.titleAlignment, color: '#333' }}>
-                                                {previewVisual.title}
+                                    <>
+                                        <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                            <div style={{ 
+                                                width: '100%', 
+                                                height: '100%', 
+                                                backgroundColor: 'white', 
+                                                padding: '20px', 
+                                                borderRadius: '4px', 
+                                                overflow: 'hidden', 
+                                                display: 'flex', 
+                                                flexDirection: 'column', 
+                                                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                                                transform: `scale(${zoomLevel / 100})`,
+                                                transformOrigin: 'center center',
+                                                transition: 'transform 0.2s ease-out'
+                                            }}>
+                                                {formatting.title && (
+                                                    <div style={{ marginBottom: '10px', fontWeight: 'bold', fontSize: '16px', textAlign: formatting.titleAlignment, color: '#333' }}>
+                                                        {previewVisual.title}
+                                                    </div>
+                                                )}
+                                                <div style={{ flex: 1, position: 'relative', minHeight: '0' }}>
+                                                    <VisualRenderer visual={previewVisual} isPreview={true} />
+                                                </div>
                                             </div>
-                                        )}
-                                        <div style={{ flex: 1, position: 'relative', minHeight: '0' }}>
-                                            <VisualRenderer visual={previewVisual} isPreview={true} />
                                         </div>
-                                    </div>
+                                        
+                                        <div className="d-flex align-items-center justify-content-center mt-3" style={{ width: '100%' }}>
+                                            <button 
+                                                className="btn btn-link text-secondary text-decoration-none p-0 me-2" 
+                                                onClick={() => setZoomLevel(prev => Math.max(50, prev - 10))}
+                                                style={{ fontSize: '24px', lineHeight: '1' }}
+                                            >
+                                                -
+                                            </button>
+                                            <input 
+                                                type="range" 
+                                                className="form-range" 
+                                                min="50" 
+                                                max="150" 
+                                                step="10" 
+                                                value={zoomLevel} 
+                                                onChange={(e) => setZoomLevel(Number(e.target.value))}
+                                                style={{ width: '150px' }}
+                                            />
+                                            <button 
+                                                className="btn btn-link text-secondary text-decoration-none p-0 ms-2" 
+                                                onClick={() => setZoomLevel(prev => Math.min(150, prev + 10))}
+                                                style={{ fontSize: '24px', lineHeight: '1' }}
+                                            >
+                                                +
+                                            </button>
+                                            <span className="ms-3 text-muted small" style={{ minWidth: '40px' }}>{zoomLevel}%</span>
+                                        </div>
+                                    </>
                                 ) : (
                                     <div className="text-center text-muted">
                                         <div className="mb-3">
