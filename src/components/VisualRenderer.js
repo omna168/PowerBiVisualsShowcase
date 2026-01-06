@@ -1,10 +1,81 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
     const colors = theme ? theme.dataColors : ['#0078D4', '#102576', '#E06C36', '#6B007B', '#E6389F'];
     const textColor = isDarkMode ? '#ffffff' : '#333333';
     const axisColor = isDarkMode ? '#cccccc' : '#666666';
     const gridColor = isDarkMode ? '#484644' : '#e6e6e6';
+
+    const [tooltip, setTooltip] = useState(null);
+    const [hoverLine, setHoverLine] = useState(null);
+    const [zoom, setZoom] = useState(1);
+
+    const ZoomControls = () => (
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '5px', gap: '8px', borderTop: '1px solid #eee', marginTop: '5px'}}>
+            <span style={{fontSize: '10px', color: '#666', minWidth: '35px'}}>{Math.round(zoom * 100)}%</span>
+            <input 
+                type="range" 
+                min="1" max="4" step="0.1" 
+                value={zoom} 
+                onChange={e => setZoom(parseFloat(e.target.value))}
+                style={{width: '80px', height: '4px', cursor: 'pointer', accentColor: '#0078D4'}}
+            />
+        </div>
+    );
+
+    const handleMouseMove = (e, title, items, lineX = null) => {
+        const x = e.clientX;
+        const y = e.clientY;
+        // Keep tooltip within window bounds
+        const xOffset = x + 220 > window.innerWidth ? -210 : 15;
+        const yOffset = y + 150 > window.innerHeight ? -100 : 15;
+        
+        setTooltip({
+            x: x + xOffset,
+            y: y + yOffset,
+            title,
+            items
+        });
+
+        if (lineX !== null) {
+            setHoverLine(lineX);
+        } else {
+            setHoverLine(null);
+        }
+    };
+
+    const handleMouseLeave = () => {
+        setTooltip(null);
+        setHoverLine(null);
+    };
+
+    const handleChartHover = (e, dataPoints, width, height, renderCallback) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        
+        // Find nearest point
+        const fraction = mouseX / rect.width;
+        const index = Math.min(Math.max(Math.round(fraction * (dataPoints.length - 1)), 0), dataPoints.length - 1);
+        const point = dataPoints[index];
+        
+        // Calculate SVG X position (tracking mouse continuously)
+        const svgX = mouseX * (width / rect.width);
+
+        // Call standard tooltip handler with gathered data
+        if (renderCallback) {
+             const { title, items } = renderCallback(point, index);
+             handleMouseMove(e, title, items, svgX);
+        }
+    };
+
+    const isSpecific = !isPreview && (
+        (visual.title === "Actual Revenue by Industry" || (visual.fields?.Category === 'Industry' && visual.fields?.Y === 'Actual Revenue')) ||
+        (visual.title === "Number of Opportunities by Industry" || (visual.fields?.Category === 'Industry' && visual.fields?.Y === 'Number of Opportunities')) ||
+        (visual.title === "Estimated Revenue by Salesperson") ||
+        (visual.title === "Number of Opportunities by Opportunity Status") ||
+        (visual.title === "Number of Opportunities by Salesperson") ||
+        (visual.title === "this is the system embeded programming")
+    );
 
     return (
         <>
@@ -34,7 +105,10 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                                 {h: '10%', l: '$4M', full: 'Vehicle', short: 'Vehi...'}, 
                                 {h: '10%', l: '$4M', full: 'Broadcasting', short: 'Broa...'}
                             ].map((d, i) => (
-                                <div key={i} className="column-bar-group">
+                                <div key={i} className="column-bar-group"
+                                    onMouseMove={(e) => handleMouseMove(e, d.full, [{label: 'Actual Revenue', value: d.l || 'N/A', color: colors[0]}])}
+                                    onMouseLeave={handleMouseLeave}
+                                >
                                     <span className="data-label" style={isLarge ? {fontSize: '12px', color: textColor} : {color: textColor}}>{d.l}</span>
                                     <div className="column-bar" style={{height: d.h, backgroundColor: colors[0]}}></div>
                                 </div>
@@ -111,8 +185,16 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                             <span>Sanjay S...</span>
                         </div>
                         <div className="bar-plot-area">
-                            <div className="bar-horizontal" style={{width: '80%', backgroundColor: colors[0]}}>$33M</div>
-                            <div className="bar-horizontal" style={{width: '45%', backgroundColor: colors[0]}}>$19M</div>
+                            <div className="bar-horizontal" 
+                                style={{width: '80%', backgroundColor: colors[0]}}
+                                onMouseMove={(e) => handleMouseMove(e, 'June Smith', [{label: 'Estimated Revenue', value: '$33M', color: colors[0]}])}
+                                onMouseLeave={handleMouseLeave}
+                            >$33M</div>
+                            <div className="bar-horizontal" 
+                                style={{width: '45%', backgroundColor: colors[0]}}
+                                onMouseMove={(e) => handleMouseMove(e, 'Sanjay Shah', [{label: 'Estimated Revenue', value: '$19M', color: colors[0]}])}
+                                onMouseLeave={handleMouseLeave}
+                            >$19M</div>
                         </div>
                     </div>
                     <div className="bar-x-axis" style={{color: axisColor}}>
@@ -133,10 +215,26 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                             ${colors[4]} 90% 100%
                         )`
                     }}></div>
-                    <div className="pie-label" style={{top: '10%', right: '0', color: textColor}}>Closed Won<br/>124</div>
-                    <div className="pie-label" style={{bottom: '10%', right: '10%', color: textColor}}>Close... 88</div>
-                    <div className="pie-label" style={{bottom: '20%', left: '0', color: textColor}}>Quote Sent<br/>61</div>
-                    <div className="pie-label" style={{top: '10%', left: '0', color: textColor}}>Meeting Sch...<br/>46</div>
+                    <div className="pie-label" 
+                        style={{top: '10%', right: '0', color: textColor, cursor: 'default'}}
+                        onMouseMove={(e) => handleMouseMove(e, 'Closed Won', [{label: 'Count', value: '124', color: colors[0]}])}
+                        onMouseLeave={handleMouseLeave}
+                    >Closed Won<br/>124</div>
+                    <div className="pie-label" 
+                        style={{bottom: '10%', right: '10%', color: textColor, cursor: 'default'}}
+                        onMouseMove={(e) => handleMouseMove(e, 'Closed Lost', [{label: 'Count', value: '88', color: colors[1]}])}
+                        onMouseLeave={handleMouseLeave}
+                    >Close... 88</div>
+                    <div className="pie-label" 
+                        style={{bottom: '20%', left: '0', color: textColor, cursor: 'default'}}
+                        onMouseMove={(e) => handleMouseMove(e, 'Quote Sent', [{label: 'Count', value: '61', color: colors[2]}])}
+                        onMouseLeave={handleMouseLeave}
+                    >Quote Sent<br/>61</div>
+                    <div className="pie-label" 
+                        style={{top: '10%', left: '0', color: textColor, cursor: 'default'}}
+                        onMouseMove={(e) => handleMouseMove(e, 'Meeting Scheduled', [{label: 'Count', value: '46', color: colors[3]}])}
+                        onMouseLeave={handleMouseLeave}
+                    >Meeting Sch...<br/>46</div>
                 </div>
             )}
 
@@ -158,78 +256,145 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                                 <><span>100</span><span>0</span></>
                             )}
                         </div>
-                        <div className="plot-area" style={{alignItems: 'stretch', position: 'relative'}}>
-                            <svg className="line-chart-svg" viewBox="0 0 800 400" preserveAspectRatio="none" style={{overflow: 'visible'}}>
-                                {/* Grid lines for Large View */}
-                                {isLarge && (
-                                    <>
-                                        <line x1="0" y1="0" x2="800" y2="0" stroke={gridColor} strokeWidth="1" />
-                                        <line x1="0" y1="200" x2="800" y2="200" stroke={gridColor} strokeWidth="1" />
-                                        <line x1="0" y1="400" x2="800" y2="400" stroke={gridColor} strokeWidth="1" />
-                                    </>
-                                )}
-                                
-                                <path 
-                                    d={isLarge 
-                                        ? "M40 224 L120 344 L200 316 L280 328 L360 112 L440 336 L520 204 L600 320 L680 304" 
-                                        : "M10 100 L45 130 L80 120 L115 125 L150 30 L185 128 L220 70 L255 120 L290 118"
-                                    } 
-                                    fill="none" 
-                                    stroke={colors[0]} 
-                                    strokeWidth={isLarge ? "4" : "3"} 
-                                />
-                                
-                                {/* Data Points & Labels */}
+                        <div style={{flex: 1, minWidth: 0, overflowX: 'auto', overflowY: 'hidden', display: 'flex', flexDirection: 'column'}}>
+                            <div className="plot-area" style={{alignItems: 'stretch', position: 'relative', width: `${zoom * 100}%`, minWidth: '100%', transition: 'width 0.2s ease'}}>
+                                <svg className="line-chart-svg" viewBox="0 0 800 400" preserveAspectRatio="none" style={{overflow: 'visible'}}>
+                                    {/* Grid lines for Large View */}
+                                    {isLarge && (
+                                        <>
+                                            <line x1="0" y1="0" x2="800" y2="0" stroke={gridColor} strokeWidth="1" />
+                                            <line x1="0" y1="200" x2="800" y2="200" stroke={gridColor} strokeWidth="1" />
+                                            <line x1="0" y1="400" x2="800" y2="400" stroke={gridColor} strokeWidth="1" />
+                                        </>
+                                    )}
+
+                                    {/* Hover Line */}
+                                    {hoverLine !== null && (
+                                        <line 
+                                            x1={hoverLine} 
+                                            y1={0} 
+                                            x2={hoverLine} 
+                                            y2={400} 
+                                            stroke="#666" 
+                                            strokeWidth="0.5" 
+                                            strokeDasharray="4 4"
+                                            style={{pointerEvents: 'none'}} 
+                                        />
+                                    )}
+                                    
+                                    <path 
+                                        d={isLarge 
+                                            ? "M40 224 L120 344 L200 316 L280 328 L360 112 L440 336 L520 204 L600 320 L680 304" 
+                                            : "M10 100 L45 130 L80 120 L115 125 L150 30 L185 128 L220 70 L255 120 L290 118"
+                                        } 
+                                        fill="none" 
+                                        stroke={colors[0]} 
+                                        strokeWidth={isLarge ? "4" : "3"} 
+                                    />
+                                    
+                                    {/* Overlay Rect for Hover Detection */}
+                                    <rect 
+                                        x="0" y="0" width="800" height="400" 
+                                        fill="transparent" 
+                                        style={{cursor: 'crosshair'}}
+                                        onMouseMove={(e) => {
+                                            const largePoints = [
+                                                {x: 40, y: 224, v: 44}, {x: 120, y: 344, v: 14}, {x: 200, y: 316, v: 21},
+                                                {x: 280, y: 328, v: 18}, {x: 360, y: 112, v: 128}, {x: 440, y: 336, v: 16},
+                                                {x: 520, y: 204, v: 74}, {x: 600, y: 320, v: 20}, {x: 680, y: 304, v: 24}
+                                            ];
+                                            // Points for small view are not aligned cleanly for this overlay logic without more work, 
+                                            // so we prioritize Large view or just map roughly for small.
+                                            // Since the user is likely looking at the expanded visual (Large), let's focus on that UX.
+                                            // For simplicity, we use the same points array structure but mapped if needed.
+                                            
+                                            const points = isLarge ? largePoints : [
+                                                {x: 10, y: 100, v: 44}, {x: 45, y: 130, v: 14}, {x: 80, y: 120, v: 21},
+                                                {x: 115, y: 125, v: 18}, {x: 150, y: 30, v: 128}, {x: 185, y: 128, v: 16},
+                                                {x: 220, y: 70, v: 74}, {x: 255, y: 120, v: 20}, {x: 290, y: 118, v: 24}
+                                            ];
+
+                                            const rect = e.currentTarget.getBoundingClientRect();
+                                            const mouseX = e.clientX - rect.left;
+                                            
+                                            // Use direct distance finding since points are not perfectly equidistant in small view
+                                            // Map mouseX to SVG space
+                                            const svgMouseX = mouseX * (800 / rect.width);
+                                            
+                                            let minDist = Infinity;
+                                            let closestIndex = 0;
+                                            
+                                            points.forEach((p, i) => {
+                                                const dist = Math.abs((isLarge ? p.x : (p.x * (800/300))) - svgMouseX);
+                                                if (dist < minDist) {
+                                                    minDist = dist;
+                                                    closestIndex = i;
+                                                }
+                                            });
+
+                                            const p = points[closestIndex];
+                                            const names = ['Alicia Thomber', 'Anne Weiler', 'Carlos Grilo', 'Christa Geller', 'June Smith', 'Molly Clark', 'Sanjay Shah', 'Spencer Low', 'Sven Mortensen'];
+                                            
+                                            handleMouseMove(e, names[closestIndex], [{label: 'Opportunities', value: p.v, color: colors[0]}], svgMouseX); 
+                                            
+                                            if (isLarge) setHoverLine(svgMouseX);
+                                        }}
+                                        onMouseLeave={handleMouseLeave}
+                                    />
+
+                                    {/* Data Points & Labels */}
+                                    {(isLarge ? [
+                                        {x: 40, y: 224, v: 44}, {x: 120, y: 344, v: 14}, {x: 200, y: 316, v: 21},
+                                        {x: 280, y: 328, v: 18}, {x: 360, y: 112, v: 128}, {x: 440, y: 336, v: 16},
+                                        {x: 520, y: 204, v: 74}, {x: 600, y: 320, v: 20}, {x: 680, y: 304, v: 24}
+                                    ] : [
+                                        {x: 10, y: 100, v: 44}, {x: 45, y: 130, v: 14}, {x: 80, y: 120, v: 21},
+                                        {x: 115, y: 125, v: 18}, {x: 150, y: 30, v: 128}, {x: 185, y: 128, v: 16},
+                                        {x: 220, y: 70, v: 74}, {x: 255, y: 120, v: 20}, {x: 290, y: 118, v: 24}
+                                    ]).map((p, i) => (
+                                        <g key={i} style={{pointerEvents: 'none'}}>
+                                            <text 
+                                                x={p.x} 
+                                                y={p.y - 15} 
+                                                className="line-point-label" 
+                                                style={isLarge ? {fontSize: '14px', fill: axisColor} : {fill: axisColor}}
+                                            >
+                                                {p.v}
+                                            </text>
+                                        </g>
+                                    ))}
+                                </svg>
+                            </div>
+                    
+                            <div className="x-axis" style={isLarge ? {borderTop: 'none', marginTop: '0', paddingTop: '10px', width: `${zoom * 100}%`, minWidth: '100%'} : {}}>
                                 {(isLarge ? [
-                                    {x: 40, y: 224, v: 44}, {x: 120, y: 344, v: 14}, {x: 200, y: 316, v: 21},
-                                    {x: 280, y: 328, v: 18}, {x: 360, y: 112, v: 128}, {x: 440, y: 336, v: 16},
-                                    {x: 520, y: 204, v: 74}, {x: 600, y: 320, v: 20}, {x: 680, y: 304, v: 24}
+                                    'Alicia\nThomber', 'Anne Weiler', 'Carlos Grilo', 'Christa Geller', 
+                                    'June Smith', 'Molly Clark', 'Sanjay Shah', 'Spencer Low', 'Sven\nMortensen'
                                 ] : [
-                                    {x: 10, y: 100, v: 44}, {x: 45, y: 130, v: 14}, {x: 80, y: 120, v: 21},
-                                    {x: 115, y: 125, v: 18}, {x: 150, y: 30, v: 128}, {x: 185, y: 128, v: 16},
-                                    {x: 220, y: 70, v: 74}, {x: 255, y: 120, v: 20}, {x: 290, y: 118, v: 24}
-                                ]).map((p, i) => (
-                                    <g key={i}>
-                                        {!isLarge && <circle cx={p.x} cy={p.y} r="3" fill={colors[0]} />}
-                                        <text 
-                                            x={p.x} 
-                                            y={p.y - 15} 
-                                            className="line-point-label" 
-                                            style={isLarge ? {fontSize: '14px', fill: axisColor} : {fill: axisColor}}
-                                        >
-                                            {p.v}
-                                        </text>
-                                    </g>
+                                    'Alici...', 'Ann...', 'Carl...', 'Chris...', 'June...', 'Moll...', 'Sanj...', 'Spen...', 'Sven...'
+                                ]).map((l, i) => (
+                                    <span key={i} style={isLarge ? {
+                                        transform: 'none', 
+                                        textAlign: 'center', 
+                                        width: '80px', 
+                                        fontSize: '12px', 
+                                        color: axisColor,
+                                        whiteSpace: 'pre-line'
+                                    } : {
+                                        transform: 'rotate(-45deg)', 
+                                        transformOrigin: 'top left', 
+                                        marginTop: '5px', 
+                                        fontSize: '9px',
+                                        color: axisColor
+                                    }}>
+                                        {l}
+                                    </span>
                                 ))}
-                            </svg>
+                            </div>
                         </div>
                     </div>
-                    <div className="x-axis" style={isLarge ? {borderTop: 'none', marginTop: '0', paddingTop: '10px'} : {}}>
-                        {(isLarge ? [
-                            'Alicia\nThomber', 'Anne Weiler', 'Carlos Grilo', 'Christa Geller', 
-                            'June Smith', 'Molly Clark', 'Sanjay Shah', 'Spencer Low', 'Sven\nMortensen'
-                        ] : [
-                            'Alici...', 'Ann...', 'Carl...', 'Chris...', 'June...', 'Moll...', 'Sanj...', 'Spen...', 'Sven...'
-                        ]).map((l, i) => (
-                            <span key={i} style={isLarge ? {
-                                transform: 'none', 
-                                textAlign: 'center', 
-                                width: '80px', 
-                                fontSize: '12px', 
-                                color: axisColor,
-                                whiteSpace: 'pre-line'
-                            } : {
-                                transform: 'rotate(-45deg)', 
-                                transformOrigin: 'top left', 
-                                marginTop: '5px', 
-                                fontSize: '9px',
-                                color: axisColor
-                            }}>
-                                {l}
-                            </span>
-                        ))}
-                    </div>
                     {isLarge && <div style={{textAlign: 'center', fontWeight: 'bold', marginTop: '10px', fontSize: '14px', color: textColor}}>Salesperson</div>}
+                    {isLarge && <ZoomControls />}
                 </div>
             )}
 
@@ -262,7 +427,7 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
             )}
 
             {/* Generic Renderer for Newly Created Visuals */}
-            {(isPreview || (visual.title && (visual.title.startsWith("New ") || visual.formatting))) && (
+            {!isSpecific && (isPreview || (visual.title && (visual.title.startsWith("New ") || visual.formatting))) && (
                 <div className="chart-container" style={{justifyContent: 'center', alignItems: 'center', display: 'flex', height: '100%', width: '100%', flexDirection: 'column'}}>
                     
                     {/* Legend (Top) */}
@@ -310,7 +475,12 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                                             <div className="y-axis" style={{color: axisColor, fontSize: '10px', paddingRight: '5px'}}><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div>
                                             <div className="plot-area" style={{gap: '2%'}}>
                                                 {data8.map((h, i) => (
-                                                    <div key={i} className="column-bar-group" style={{width: '10%'}}>
+                                                    <div key={i} className="column-bar-group" style={{width: '10%'}}
+                                                        onMouseMove={(e) => handleMouseMove(e, `${catLabel} ${i+1}`, [
+                                                            { label: visual.fields?.Series || 'Value', value: h, color: colors[0] }
+                                                        ])}
+                                                        onMouseLeave={handleMouseLeave}
+                                                    >
                                                         {visual.formatting?.value && <span className="data-label" style={{marginBottom: '2px', color: textColor, fontSize: '10px'}}>{h}</span>}
                                                         <div className="column-bar" style={{height: `${h}%`, backgroundColor: colors[0], borderRadius: '2px 2px 0 0'}}></div>
                                                     </div>
@@ -335,7 +505,13 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                                             <div className="bar-plot-area" style={{justifyContent: 'space-around'}}>
                                                 {data8.map((w, i) => (
                                                     <div key={i} className="d-flex align-items-center" style={{width: '100%', height: '10%'}}>
-                                                        <div className="bar-horizontal" style={{width: `${w}%`, backgroundColor: colors[0], justifyContent: 'flex-end', paddingRight: '5px', borderRadius: '0 2px 2px 0'}}>
+                                                        <div className="bar-horizontal" 
+                                                            style={{width: `${w}%`, backgroundColor: colors[0], justifyContent: 'flex-end', paddingRight: '5px', borderRadius: '0 2px 2px 0'}}
+                                                            onMouseMove={(e) => handleMouseMove(e, `${catLabel} ${i+1}`, [
+                                                                { label: visual.fields?.Series || 'Value', value: w, color: colors[0] }
+                                                            ])}
+                                                            onMouseLeave={handleMouseLeave}
+                                                        >
                                                             {visual.formatting?.value && <span style={{color: 'white', fontSize: '9px', fontWeight: 'bold'}}>{w}</span>}
                                                         </div>
                                                     </div>
@@ -378,97 +554,160 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                                     </div>
                                 )}
                                 {(visual.type === "Line Chart" || visual.type === "lineChart") && (
-                                    <div className="chart-container" style={{flex: 1, minHeight: 0, position: 'relative'}}>
-                                        {visual.formatting?.grid && (
-                                            <div className="grid-lines" style={{position: 'absolute', top: 0, left: '30px', right: 0, bottom: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', pointerEvents: 'none', zIndex: 0}}>
-                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
-                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
-                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
-                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
-                                            </div>
-                                        )}
+                                    <div className="chart-container" style={{flex: 1, minHeight: 0, position: 'relative', display: 'flex', flexDirection: 'column'}}>
                                         <div className="d-flex flex-row" style={{flex: 1, minHeight: 0, zIndex: 1}}>
                                             <div className="y-axis" style={{color: axisColor, fontSize: '10px', paddingRight: '5px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div>
-                                            <div className="plot-area" style={{alignItems: 'stretch', flex: 1}}>
-                                                <svg width="100%" height="100%" viewBox="0 0 500 300" preserveAspectRatio="none" style={{overflow: 'visible'}}>
-                                                    {(() => {
-                                                        const step = 500 / (data8.length - 1);
-                                                        const pathD = data8.map((v, i) => `${i === 0 ? 'M' : 'L'}${i * step} ${300 - v*3}`).join(' ');
-                                                        return (
-                                                            <>
-                                                                <path d={pathD} fill="none" stroke={colors[0]} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                                                                {data8.map((v, i) => (
-                                                                    <g key={i}>
-                                                                        <circle cx={i * step} cy={300 - v*3} r="4" fill="white" stroke={colors[0]} strokeWidth="2" />
-                                                                        {visual.formatting?.value && (
-                                                                            <text x={i * step} y={300 - v*3 - 10} textAnchor="middle" fontSize="10" fill={textColor}>{v}</text>
-                                                                        )}
-                                                                    </g>
-                                                                ))}
-                                                            </>
-                                                        );
-                                                    })()}
-                                                </svg>
+                                            <div style={{flex: 1, minWidth: 0, overflowX: 'auto', overflowY: 'hidden', display: 'flex', flexDirection: 'column'}}>
+                                                <div className="plot-area" style={{alignItems: 'stretch', width: `${zoom * 100}%`, minWidth: '100%'}}>
+                                                    {visual.formatting?.grid && (
+                                                        <div className="grid-lines" style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', pointerEvents: 'none', zIndex: 0}}>
+                                                            <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                            <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                            <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                            <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                        </div>
+                                                    )}
+                                                    <svg width="100%" height="100%" viewBox="0 0 500 300" preserveAspectRatio="none" style={{overflow: 'visible'}}>
+                                                        {(() => {
+                                                            const step = 500 / (data8.length - 1);
+                                                            const pathD = data8.map((v, i) => `${i === 0 ? 'M' : 'L'}${i * step} ${300 - v*3}`).join(' ');
+                                                            return (
+                                                                <>
+                                                                    {/* Hover Line */}
+                                                                    {hoverLine !== null && (
+                                                                        <line 
+                                                                            x1={hoverLine} 
+                                                                            y1={0} 
+                                                                            x2={hoverLine} 
+                                                                            y2={300} 
+                                                                            stroke="#666" 
+                                                                            strokeWidth="0.5" 
+                                                                            strokeDasharray="4 4"
+                                                                            style={{pointerEvents: 'none'}} 
+                                                                        />
+                                                                    )}
+                                                                    
+                                                                    <path d={pathD} fill="none" stroke={colors[0]} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                                                    
+                                                                    <rect 
+                                                                        x="0" y="0" width="500" height="300"
+                                                                        fill="transparent"
+                                                                        style={{cursor: 'crosshair'}}
+                                                                        onMouseMove={(e) => {
+                                                                            const points = data8.map((v, i) => ({ x: i * step, v, i }));
+                                                                            handleChartHover(e, points, 500, 300, (p, i) => ({
+                                                                                title: `${catLabel} ${i+1}`,
+                                                                                items: [{ label: visual.fields?.Series || 'Value', value: p.v, color: colors[0] }]
+                                                                            }));
+                                                                        }}
+                                                                        onMouseLeave={handleMouseLeave}
+                                                                    />
+
+                                                                    {data8.map((v, i) => (
+                                                                        <g key={i} style={{pointerEvents: 'none'}}>
+                                                                            <circle cx={i * step} cy={300 - v*3} r="4" fill="white" stroke={colors[0]} strokeWidth="2" />
+                                                                            {visual.formatting?.value && (
+                                                                                <text x={i * step} y={300 - v*3 - 10} textAnchor="middle" fontSize="10" fill={textColor}>{v}</text>
+                                                                            )}
+                                                                        </g>
+                                                                    ))}
+                                                                </>
+                                                            );
+                                                        })()}
+                                                    </svg>
+                                                </div>
+                                                {visual.formatting?.category !== false && (
+                                                    <div className="x-axis" style={{color: axisColor, marginTop: '5px', display: 'flex', justifyContent: 'space-between', width: `${zoom * 100}%`, minWidth: '100%'}}>
+                                                        {data8.map((_, i) => <span key={i} style={{fontSize: '10px'}}>{catLabel} {i+1}</span>)}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                        {visual.formatting?.category !== false && (
-                                            <div className="x-axis" style={{color: axisColor, paddingLeft: '30px', marginTop: '5px', display: 'flex', justifyContent: 'space-between'}}>
-                                                {data8.map((_, i) => <span key={i} style={{fontSize: '10px'}}>{catLabel} {i+1}</span>)}
-                                            </div>
-                                        )}
+                                        <ZoomControls />
                                     </div>
                                 )}
 
                                 {(visual.type === "Area Chart" || visual.type === "areaChart") && (
-                                    <div className="chart-container" style={{flex: 1, minHeight: 0, position: 'relative'}}>
-                                        {visual.formatting?.grid && (
-                                            <div className="grid-lines" style={{position: 'absolute', top: 0, left: '30px', right: 0, bottom: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', pointerEvents: 'none', zIndex: 0}}>
-                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
-                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
-                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
-                                                <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
-                                            </div>
-                                        )}
+                                    <div className="chart-container" style={{flex: 1, minHeight: 0, position: 'relative', display: 'flex', flexDirection: 'column'}}>
                                         <div className="d-flex flex-row" style={{flex: 1, minHeight: 0, zIndex: 1}}>
                                             <div className="y-axis" style={{justifyContent: 'space-between', height: '100%', paddingBottom: '20px', color: axisColor, fontSize: '10px', paddingRight: '5px', display: 'flex', flexDirection: 'column'}}>
                                                 <span>100</span><span>75</span><span>50</span><span>25</span><span>0</span>
                                             </div>
-                                            <div className="plot-area" style={{alignItems: 'stretch', position: 'relative', flex: 1}}>
-                                                <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none" style={{overflow: 'visible'}}>
-                                                    <defs>
-                                                        <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                                                            <stop offset="0%" stopColor={colors[0]} stopOpacity="0.5"/>
-                                                            <stop offset="100%" stopColor={colors[0]} stopOpacity="0.1"/>
-                                                        </linearGradient>
-                                                    </defs>
-                                                    {(() => {
-                                                        const step = 400 / (data8.length - 1);
-                                                        const pathPoints = data8.map((v, i) => `${i * step} ${200 - v*2}`).join(' ');
-                                                        
-                                                        return (
-                                                            <>
-                                                                <path d={`M0 200 L${pathPoints} V 200 Z`} fill="url(#areaGradient)" />
-                                                                <path d={`M${pathPoints.replace(/ /g, ',').split(',').map((c, i, arr) => i % 2 === 0 ? 'L' + c : c).join(' ').replace('ML', 'M')}`} fill="none" stroke={colors[0]} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                                                                
-                                                                {data8.map((v, i) => (
-                                                                    <g key={i}>
-                                                                        <circle cx={i * step} cy={200 - v*2} r="4" fill={colors[0]} stroke="white" strokeWidth="2" />
-                                                                        {visual.formatting?.value && (
-                                                                            <text x={i * step} y={200 - v*2 - 10} textAnchor="middle" fontSize="10" fill={textColor}>{v}</text>
-                                                                        )}
-                                                                    </g>
-                                                                ))}
-                                                            </>
-                                                        );
-                                                    })()}
-                                                </svg>
+                                            <div style={{flex: 1, minWidth: 0, overflowX: 'auto', overflowY: 'hidden', display: 'flex', flexDirection: 'column'}}>
+                                                <div className="plot-area" style={{alignItems: 'stretch', position: 'relative', width: `${zoom * 100}%`, minWidth: '100%'}}>
+                                                    {visual.formatting?.grid && (
+                                                        <div className="grid-lines" style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', pointerEvents: 'none', zIndex: 0}}>
+                                                            <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                            <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                            <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                            <div style={{borderTop: '1px dashed #e0e0e0', width: '100%', height: '1px'}}></div>
+                                                        </div>
+                                                    )}
+                                                    <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none" style={{overflow: 'visible'}}>
+                                                        <defs>
+                                                            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                                                                <stop offset="0%" stopColor={colors[0]} stopOpacity="0.5"/>
+                                                                <stop offset="100%" stopColor={colors[0]} stopOpacity="0.1"/>
+                                                            </linearGradient>
+                                                        </defs>
+                                                        {(() => {
+                                                            const step = 400 / (data8.length - 1);
+                                                            const pathPoints = data8.map((v, i) => `${i * step} ${200 - v*2}`).join(' ');
+                                                            
+                                                            return (
+                                                                <>
+                                                                    {/* Hover Line */}
+                                                                    {hoverLine !== null && (
+                                                                        <line 
+                                                                            x1={hoverLine} 
+                                                                            y1={0} 
+                                                                            x2={hoverLine} 
+                                                                            y2={200} 
+                                                                            stroke="#666" 
+                                                                            strokeWidth="0.5" 
+                                                                            strokeDasharray="4 4"
+                                                                            style={{pointerEvents: 'none'}} 
+                                                                        />
+                                                                    )}
+
+                                                                    <path d={`M0 200 L${pathPoints} V 200 Z`} fill="url(#areaGradient)" />
+                                                                    <path d={`M${pathPoints.replace(/ /g, ',').split(',').map((c, i, arr) => i % 2 === 0 ? 'L' + c : c).join(' ').replace('ML', 'M')}`} fill="none" stroke={colors[0]} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                                                    
+                                                                    <rect 
+                                                                        x="0" y="0" width="400" height="200"
+                                                                        fill="transparent"
+                                                                        style={{cursor: 'crosshair'}}
+                                                                        onMouseMove={(e) => {
+                                                                            const points = data8.map((v, i) => ({ x: i * step, v, i }));
+                                                                            handleChartHover(e, points, 400, 200, (p, i) => ({
+                                                                                title: `${catLabel} ${i+1}`,
+                                                                                items: [{ label: visual.fields?.Series || 'Value', value: p.v, color: colors[0] }]
+                                                                            }));
+                                                                        }}
+                                                                        onMouseLeave={handleMouseLeave}
+                                                                    />
+
+                                                                    {data8.map((v, i) => (
+                                                                        <g key={i} style={{pointerEvents: 'none'}}>
+                                                                            <circle cx={i * step} cy={200 - v*2} r="4" fill={colors[0]} stroke="white" strokeWidth="2" style={{pointerEvents: 'none'}} />
+                                                                            {visual.formatting?.value && (
+                                                                                <text x={i * step} y={200 - v*2 - 10} textAnchor="middle" fontSize="10" fill={textColor}>{v}</text>
+                                                                            )}
+                                                                        </g>
+                                                                    ))}
+                                                                </>
+                                                            );
+                                                        })()}
+                                                    </svg>
+                                                </div>
+                                                {visual.formatting?.category !== false && (
+                                                    <div className="x-axis" style={{color: axisColor, marginTop: '5px', display: 'flex', justifyContent: 'space-between', width: `${zoom * 100}%`, minWidth: '100%'}}>
+                                                        {data8.map((_, i) => <span key={i} style={{fontSize: '10px'}}>{catLabel} {i+1}</span>)}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                        {visual.formatting?.category !== false && (
-                                            <div className="x-axis" style={{color: axisColor, paddingLeft: '30px', marginTop: '5px', display: 'flex', justifyContent: 'space-between'}}>
-                                                {data8.map((_, i) => <span key={i} style={{fontSize: '10px'}}>{catLabel} {i+1}</span>)}
-                                            </div>
-                                        )}
+                                        <ZoomControls />
                                     </div>
                                 )}
                             </>
@@ -477,6 +716,41 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                     {!["Column Chart", "Bar Chart", "Pie Chart", "Line Chart", "Area Chart", "columnChart", "barChart", "pieChart", "lineChart", "areaChart"].includes(visual.type) && (
                         <div style={{color: axisColor, fontSize: '12px'}}>Visual type not supported in mock mode: {visual.type}</div>
                     )}
+                </div>
+            )}
+
+            {tooltip && (
+                <div style={{
+                    position: 'fixed',
+                    left: tooltip.x,
+                    top: tooltip.y,
+                    backgroundColor: 'white',
+                    boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+                    padding: '8px 12px',
+                    zIndex: 9999,
+                    pointerEvents: 'none',
+                    minWidth: '200px',
+                    borderRadius: '2px',
+                    fontFamily: '"Segoe UI", sans-serif',
+                }}>
+                    <div style={{
+                        fontSize: '12px', 
+                        color: '#666', 
+                        marginBottom: '6px',
+                        paddingBottom: '4px',
+                        borderBottom: '1px solid #eee'
+                    }}>
+                        {tooltip.title}
+                    </div>
+                    {tooltip.items.map((item, i) => (
+                        <div key={i} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '13px', marginBottom: '4px'}}>
+                            <div style={{display: 'flex', alignItems: 'center'}}>
+                                <div style={{width: '8px', height: '8px', borderRadius: '50%', backgroundColor: item.color, marginRight: '8px'}}></div>
+                                <span style={{color: '#333'}}>{item.label}</span>
+                            </div>
+                            <span style={{fontWeight: '600', color: '#333'}}>{item.value}</span>
+                        </div>
+                    ))}
                 </div>
             )}
         </>
