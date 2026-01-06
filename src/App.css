@@ -473,7 +473,7 @@ body.dark .content {
   gap: 20px;
   width: 100%;
   max-width: 1600px;
-  margin: 0 auto;
+  margin: 120px auto 30px auto;
 }
 
 /* Visual Card Styling */
