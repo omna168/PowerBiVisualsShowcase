@@ -76,7 +76,7 @@ body::-webkit-scrollbar-thumb {
 /* Dropdown Area (Theme Selector) */
 .dropdown {
     background: #FAF9F8;
-    margin-top: 44px;
+    margin-top: 56px;
 }
 
 body.dark .dropdown {
@@ -363,7 +363,7 @@ body.dark .header-separator {
 .horizontal-rule {
     border-top: .5px solid rgba(0, 0, 0, .2);
     clear: both;
-    margin: 109px 16px 0 16px;
+    margin: 121px 16px 0 16px;
     opacity: .7;
     width: auto;
     z-index: 0;
@@ -473,7 +473,7 @@ body.dark .content {
   gap: 20px;
   width: 100%;
   max-width: 1600px;
-  margin: 120px auto 30px auto;
+  margin: 140px auto 30px auto;
 }
 
 /* Visual Card Styling */
