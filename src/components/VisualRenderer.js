@@ -258,7 +258,7 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                         </div>
                         <div style={{flex: 1, minWidth: 0, overflowX: 'auto', overflowY: 'hidden', display: 'flex', flexDirection: 'column'}}>
                             <div className="plot-area" style={{alignItems: 'stretch', position: 'relative', width: `${zoom * 100}%`, minWidth: '100%', transition: 'width 0.2s ease'}}>
-                                <svg className="line-chart-svg" viewBox="0 0 800 400" preserveAspectRatio="none" style={{overflow: 'visible'}}>
+                                <svg className="line-chart-svg" viewBox={isLarge ? "0 0 800 400" : "0 0 300 150"} preserveAspectRatio="none" style={{overflow: 'visible'}}>
                                     {/* Grid lines for Large View */}
                                     {isLarge && (
                                         <>
@@ -274,7 +274,7 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                                             x1={hoverLine} 
                                             y1={0} 
                                             x2={hoverLine} 
-                                            y2={400} 
+                                            y2={isLarge ? 400 : 150} 
                                             stroke="#666" 
                                             strokeWidth="0.5" 
                                             strokeDasharray="4 4"
@@ -316,16 +316,18 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
 
                                             const rect = e.currentTarget.getBoundingClientRect();
                                             const mouseX = e.clientX - rect.left;
+                                            const viewBoxWidth = isLarge ? 800 : 300;
                                             
-                                            // Use direct distance finding since points are not perfectly equidistant in small view
                                             // Map mouseX to SVG space
-                                            const svgMouseX = mouseX * (800 / rect.width);
+                                            const svgMouseX = mouseX * (viewBoxWidth / rect.width);
                                             
                                             let minDist = Infinity;
                                             let closestIndex = 0;
                                             
                                             points.forEach((p, i) => {
-                                                const dist = Math.abs((isLarge ? p.x : (p.x * (800/300))) - svgMouseX);
+                                                // Points are already in their respective coordinate spaces (Small vs Large)
+                                                // No need for re-scaling if we match ViewBox to the points set
+                                                const dist = Math.abs(p.x - svgMouseX);
                                                 if (dist < minDist) {
                                                     minDist = dist;
                                                     closestIndex = i;
@@ -337,7 +339,10 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                                             
                                             handleMouseMove(e, names[closestIndex], [{label: 'Opportunities', value: p.v, color: colors[0]}], svgMouseX); 
                                             
-                                            if (isLarge) setHoverLine(svgMouseX);
+                                            // Always show hover line in both modes now, or just Large? 
+                                            // Previous code: if (isLarge) setHoverLine(svgMouseX);
+                                            // Let's enable for both
+                                            setHoverLine(svgMouseX);
                                         }}
                                         onMouseLeave={handleMouseLeave}
                                     />
@@ -357,7 +362,7 @@ const VisualRenderer = ({ visual, isLarge, theme, isDarkMode, isPreview }) => {
                                                 x={p.x} 
                                                 y={p.y - 15} 
                                                 className="line-point-label" 
-                                                style={isLarge ? {fontSize: '14px', fill: axisColor} : {fill: axisColor}}
+                                                style={isLarge ? {fontSize: '14px', fill: axisColor} : {fill: axisColor, fontSize: '10px'}}
                                             >
                                                 {p.v}
                                             </text>
